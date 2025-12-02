@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializer;
+import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.menu.town.VaultMenu;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
@@ -71,9 +72,10 @@ public class Json {
             (JsonDeserializer<VaultMenu>) (json, typeOfT, context) -> {
                 JsonObject object = json.getAsJsonObject();
                 Preconditions.checkArgument(object.has("contents"));
-                final VaultMenu menu = new VaultMenu(6, "Town Vault");
+                final VaultMenu menu = new VaultMenu(Config.get().getTownVaults().getRows(), "Town Vault");
                 final ItemStack[] items = VaultMenu.deserializeItemStacks(object.get("contents").getAsString());
                 for (int i = 0; i < items.length; i++) {
+                    if (i >= menu.getInventory().getSize()) break;
                     menu.getInventory().setItem(i, items[i]);
                 }
                 return menu;

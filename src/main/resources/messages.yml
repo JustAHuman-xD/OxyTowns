@@ -169,8 +169,10 @@ town:
       <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/t unclaim confirm><green><bold>[Confirm]</click>
       <gray>                 <gold><st>
   bank:
+    error-not-within-town: "<red>You must be within your town to access the town bank."
     error-cannot-afford: "<red>Your town can't afford this."
     error-withdraw-not-allowed: "<red>You are not allowed to withdraw money from your town bank."
+    error-deposit-past-max: "<red>That deposit would exceed the town bank's capacity by $<excess>."
     deposit-successful: "<yellow><player> <gold>has deposited <yellow>$<amount><gold> into the town bank."
     withdraw-successful: "<yellow><player> <gold>has withdrawn <yellow>$<amount> <gold>from the town bank."
   outpost:
@@ -184,6 +186,7 @@ town:
     upgraded: "<gold>Successfully upgraded <yellow><upgrade> <green>to  tier <yellow><tier> <green>for <yellow>$<price><green>."
     no-permission: "<red>You don't have permission to upgrade your town."
   vault:
+    error-not-within-town: "<red>You must be within your town to access the town vaults."
     no-open-permission: "<red>You don't have permission to open the Town Vault."
     invalid-number: "<red>That is not a valid Vault number. Please try again!"
   ban:

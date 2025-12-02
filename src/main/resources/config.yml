@@ -205,6 +205,16 @@ upgrades:
       100: 150000.0
       150: 350000.0
       250: 500000.0
+  BANK_CAPACITY:
+    display-name: "Bank Capacity"
+    upgrade:
+      # The first number indicates the max balance. The second number indicates the cost of the upgrade.
+      # "1000000.0: 250000.0" means that you will unlock a max balance of $1,000,000 for $250,000.
+      1000000.0: 250000.0
+      1500000.0: 500000.0
+      3000000.0: 750000.0
+      5000000.0: 1500000.0
+      10000000.0: 2500000.0
   VAULT_AMOUNT:
     display-name: "Vault Amount"
     upgrade:
@@ -247,6 +257,22 @@ upkeep:
   # The settings below define what time upkeep will be collected.
   hour: 12
   timezone: America/New_York
+
+town-bank:
+  # Whether town banks should be enabled.
+  # DISABLING NOT YET IMPLEMENTED
+  enabled: true
+  # If you should be able to access the town bank outside the town.
+  access-outside-town: true
+
+town-vaults:
+  # Whether town vaults should be enabled.
+  # DISABLING NOT YET IMPLEMENTED
+  enabled: true
+  # If you should be able to access the town vaults outside the town.
+  access-outside-town: true
+  # How many rows each vault should have
+  vault-rows: 6
 
 # We provide a barebones town chat system. It's up to your chat plugin for a more robust system.
 town-chat:

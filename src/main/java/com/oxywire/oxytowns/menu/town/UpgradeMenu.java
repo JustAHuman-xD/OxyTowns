@@ -1,6 +1,7 @@
 package com.oxywire.oxytowns.menu.town;
 
 import com.oxywire.oxytowns.OxyTownsPlugin;
+import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.Upgrade;
@@ -67,7 +68,7 @@ public final class UpgradeMenu extends Menu {
 
                         if (this.upgrade == Upgrade.VAULT_AMOUNT) {
                             for (int i = this.town.getVaults().size(); i < this.upgrade.getTiers().keySet().toArray(Integer[]::new)[upgradeTier]; i++) {
-                                this.town.getVaults().add(new VaultMenu(6, "Town Vault"));
+                                this.town.getVaults().add(new VaultMenu(com.oxywire.oxytowns.config.Config.get().getTownVaults().getRows(), "Town Vault"));
                             }
 
                             OxyTownsPlugin.get().getTownCache().updateVaultLogic(this.town);

@@ -5,6 +5,7 @@ import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
 import com.oxywire.oxytowns.command.annotation.MustBeInTown;
 import com.oxywire.oxytowns.command.annotation.SendersTown;
+import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
@@ -19,6 +20,11 @@ public final class VaultCommand {
     @MustBeInTown
     public void onVault(final Player sender, final @SendersTown Town town, final @Argument("number") @Nullable Integer vaultNumber) {
         final Messages messages = Messages.get();
+        if (!Config.get().getTownVaults().isAccessOutsideTown() && !town.hasClaimed(sender.getLocation())) {
+            messages.getTown().getVault().getErrorNotWithinTown().send(sender);
+            return;
+        }
+
         if (!town.hasPermission(sender.getUniqueId(), Permission.VAULT)) {
             messages.getTown().getVault().getNoOpenPermission().send(sender);
             return;

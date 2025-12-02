@@ -756,6 +756,7 @@ public final class Menus {
                                     "<gray>Financial Overview.",
                                     "",
                                     "<gold>Town Balance: <yellow><worth>",
+                                    "<gold>Town Capacity: <yellow><capacity>",
                                     "<gold>Town Upkeep: <yellow><upkeep>",
                                     "",
                                     "<yellow>/town deposit <number>",
@@ -988,6 +989,18 @@ public final class Menus {
                                     "<white>This will allow you to have more members."
                                 )
                             ),
+                        "upgrade-" + Upgrade.BANK_CAPACITY, new MenuElement()
+                            .setMaterial(Material.ANVIL)
+                            .setSlot(22)
+                            .setDisplayName("<gold><b>Bank Capacity")
+                            .setLore(
+                                List.of(
+                                    "<gray>Expand your town!",
+                                    "",
+                                    "<white>Here you can unlock a higher bank capacity.",
+                                    "<white>This will allow you to store more currency."
+                                )
+                            ),
                         "upgrade-" + Upgrade.VAULT_AMOUNT, new MenuElement()
                             .setMaterial(Material.ANVIL)
                             .setSlot(23)
@@ -1050,6 +1063,16 @@ public final class Menus {
                                 List.of(
                                     "",
                                     "<yellow>■ Click to upgrade amount of residents."
+                                )
+                            ),
+                        "upgrade-info-" + Upgrade.BANK_CAPACITY, new MenuElement()
+                            .setMaterial(Material.GOLD_INGOT)
+                            .setSlot(4)
+                            .setDisplayName("<gold>Bank Upgrades")
+                            .setLore(
+                                List.of(
+                                    "",
+                                    "<yellow>■ Click to upgrade the capacity of the town bank."
                                 )
                             ),
                         "upgrade-info-" + Upgrade.VAULT_AMOUNT, new MenuElement()

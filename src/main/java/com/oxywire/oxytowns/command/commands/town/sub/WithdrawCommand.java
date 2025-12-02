@@ -7,6 +7,7 @@ import cloud.commandframework.annotations.specifier.Range;
 import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.command.annotation.MustBeInTown;
 import com.oxywire.oxytowns.command.annotation.SendersTown;
+import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
@@ -27,6 +28,11 @@ public final class WithdrawCommand {
     @MustBeInTown
     public void onWithdraw(final Player sender, final @SendersTown Town town, final @Argument("amount") @Range(min = "0.01") double amount) {
         final Messages messages = Messages.get();
+        if (!Config.get().getTownBank().isAccessOutsideTown() && !town.hasClaimed(sender.getLocation())) {
+            messages.getTown().getBank().getErrorNotWithinTown().send(sender);
+            return;
+        }
+
         if (!town.hasPermission(sender.getUniqueId(), Permission.WITHDRAW)) {
             messages.getTown().getBank().getErrorWithdrawNotAllowed().send(sender);
             return;

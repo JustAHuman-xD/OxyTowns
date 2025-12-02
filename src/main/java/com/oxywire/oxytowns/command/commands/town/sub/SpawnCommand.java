@@ -8,12 +8,16 @@ import com.oxywire.oxytowns.cache.TownCache;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.settings.SpawnSetting;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 public final class SpawnCommand {
+    @Setter
+    private static BiConsumer<Player, Town> teleportFunction = (sender, town) -> town.teleport(sender);
 
     @CommandMethod("town|t spawn [town]")
     @CommandDescription("Teleport to a town's spawn")
@@ -32,7 +36,7 @@ public final class SpawnCommand {
 
             // Always allow the town leader to go
             if (town.getOwner().equals(sender.getUniqueId()) || townCache.isBypassing(sender)) {
-                town.teleport(sender);
+                teleportFunction.accept(sender, town);
                 return;
             }
 
@@ -49,7 +53,7 @@ public final class SpawnCommand {
                 return;
             }
 
-            town.teleport(sender);
+            teleportFunction.accept(sender, town);
             return;
         }
 
@@ -68,10 +72,10 @@ public final class SpawnCommand {
         }
 
         if (presentTown.getOwner().equals(sender.getUniqueId()) || townCache.isBypassing(sender)) {
-            presentTown.teleport(sender);
+            teleportFunction.accept(sender, presentTown);
             return;
         }
 
-        presentTown.teleport(sender);
+        teleportFunction.accept(sender, presentTown);
     }
 }

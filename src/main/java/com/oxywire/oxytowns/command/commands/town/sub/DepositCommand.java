@@ -7,8 +7,10 @@ import cloud.commandframework.annotations.specifier.Range;
 import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.command.annotation.MustBeInTown;
 import com.oxywire.oxytowns.command.annotation.SendersTown;
+import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
+import com.oxywire.oxytowns.entities.types.Upgrade;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
@@ -26,17 +28,17 @@ public final class DepositCommand {
     @MustBeInTown
     public void onDeposit(final Player sender, final @SendersTown Town town, final @Argument("amount") @Range(min = "0.01") double amount) {
         final Messages messages = Messages.get();
-        if (!this.plugin.getEconomy().has(sender, amount)) {
+        if (!Config.get().getTownBank().isAccessOutsideTown() && !town.hasClaimed(sender.getLocation())) {
+            messages.getTown().getBank().getErrorNotWithinTown().send(sender);
+        } else if (!this.plugin.getEconomy().has(sender, amount)) {
             messages.getPlayer().getErrorCannotAffordDeposit().send(sender, Formatter.number("amount", amount));
-            return;
-        }
-
-        if (this.plugin.getEconomy().withdrawPlayer(sender, amount).transactionSuccess()) {
+        } else if (town.getWorth() + amount > town.getUpgradeValue(Upgrade.BANK_CAPACITY)) {
+            messages.getTown().getBank().getErrorDepositPastMax().send(sender, Formatter.number("excess", (town.getWorth() + amount) - town.getUpgradeValue(Upgrade.BANK_CAPACITY)));
+        } else if (this.plugin.getEconomy().withdrawPlayer(sender, amount).transactionSuccess()) {
             town.addWorth(amount);
             messages.getTown().getBank().getDepositSuccessful().send(town, Placeholder.unparsed("player", sender.getName()), Formatter.number("amount", amount));
-            return;
+        } else {
+            messages.getPlayer().getErrorCannotAffordDeposit().send(sender);
         }
-
-        messages.getPlayer().getErrorCannotAffordDeposit().send(sender);
     }
 }

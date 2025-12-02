@@ -14,6 +14,7 @@ import java.util.Map;
 public enum Upgrade {
     CLAIMS(8),
     MEMBERS(3),
+    BANK_CAPACITY(500000),
     VAULT_AMOUNT(0),
     OUTPOSTS(0);
 

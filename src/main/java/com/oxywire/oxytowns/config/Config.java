@@ -63,6 +63,12 @@ public final class Config {
     private Upkeep upkeep = new Upkeep();
 
     @Setting
+    private TownBank townBank = new TownBank();
+
+    @Setting
+    private TownVaults townVaults = new TownVaults();
+
+    @Setting
     private TownChat townChat = new TownChat();
 
     public static Config get() {
@@ -101,6 +107,25 @@ public final class Config {
 
         @Setting
         private Set<String> blacklistedCommands = new HashSet<>();
+    }
+
+    @Getter
+    @ConfigSerializable
+    public static final class TownBank {
+
+        @Setting
+        private boolean accessOutsideTown = true;
+    }
+
+    @Getter
+    @ConfigSerializable
+    public static final class TownVaults {
+
+        @Setting
+        private boolean accessOutsideTown = true;
+
+        @Setting
+        private int rows = 6;
     }
 
     @Getter

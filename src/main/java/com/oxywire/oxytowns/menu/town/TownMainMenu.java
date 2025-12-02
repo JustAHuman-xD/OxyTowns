@@ -38,7 +38,9 @@ public final class TownMainMenu extends Menu {
             contents,
             elements.get("vault"),
             e -> {
-                if (this.town.hasPermission(player.getUniqueId(), Permission.VAULT)) {
+                if (!com.oxywire.oxytowns.config.Config.get().getTownVaults().isAccessOutsideTown() && !town.hasClaimed(player.getLocation())) {
+                    Messages.get().getTown().getVault().getErrorNotWithinTown().send(player);
+                } else if (this.town.hasPermission(player.getUniqueId(), Permission.VAULT)) {
                     VaultSelectorMenu.open(player, this.town);
                 } else {
                     Messages.get().getTown().getVault().getNoOpenPermission().send(player);

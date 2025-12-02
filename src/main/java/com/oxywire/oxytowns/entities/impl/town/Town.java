@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oxywire.oxytowns.OxyTownsPlugin;
+import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.BanEntry;
 import com.oxywire.oxytowns.entities.impl.TrustedEntry;
@@ -96,7 +97,7 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
         this.spawnPosition = null;
         this.bankValue = 0.0d;
         this.townUpgrades = Maps.newConcurrentMap();
-        this.vaults = Lists.newArrayList(new VaultMenu(6, "Town Vault"));
+        this.vaults = Lists.newArrayList(new VaultMenu(Config.get().getTownVaults().getRows(), "Town Vault"));
         this.bans = Sets.newConcurrentHashSet();
         this.spawnSetting = SpawnSetting.MEMBERS;
         this.townToggles = new EnumMap<>(Map.of(Setting.PVP, false, Setting.OPEN, false));
@@ -727,6 +728,7 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
     public TagResolver[] getPlaceholders() {
         return new TagResolver[]{
             Formatter.number("worth", bankValue),
+            Formatter.number("capacity", getUpgradeValue(Upgrade.BANK_CAPACITY)),
             Placeholder.unparsed("name", name),
             Placeholder.unparsed("town", name),
             Placeholder.unparsed("spawn-setting", spawnSetting.getName()),

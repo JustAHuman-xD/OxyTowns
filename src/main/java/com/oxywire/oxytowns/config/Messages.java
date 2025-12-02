@@ -317,6 +317,9 @@ public final class Messages {
         public static final class Vault {
 
             @Setting
+            private Message errorNotWithinTown = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>You must be within your town to access the town vaults.");
+
+            @Setting
             private Message noOpenPermission = new Message().setMessage(
                 "<red><b>Error</b> <dark_gray>» <red>You don't have permission to open the Town Vault.");
 
@@ -373,11 +376,19 @@ public final class Messages {
         public static final class Bank {
 
             @Setting
+            private Message errorNotWithinTown = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>You must be within your town to access the town bank.");
+
+            @Setting
             private Message errorCannotAfford = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>Your town can't afford this.");
 
             @Setting
             private Message errorWithdrawNotAllowed = new Message().setMessage(
                 "<red><b>Error</b> <dark_gray>» <red>You are not allowed to withdraw money from your town bank.");
+
+            @Setting
+            private Message errorDepositPastMax = new Message().setMessage(
+                "<red><b>Error</b> <dark_gray>» <red>That deposit would exceed the town bank's capacity by $<excess>."
+            );
 
             @Setting
             private Message depositSuccessful = new Message().setMessage(

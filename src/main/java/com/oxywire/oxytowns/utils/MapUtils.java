@@ -71,7 +71,6 @@ public class MapUtils {
         String world = player.getWorld().getName();
         final Component[] compass = generateCompass(player);
 
-        int help = 0;
         int compassI = 0;
         for (int x = -HALF_LINE_WIDTH; x < HALF_LINE_WIDTH; x++) {
             map = map.append(getOrDefault(compass, compassI++, COMPASS_FILLER));
@@ -100,8 +99,11 @@ public class MapUtils {
                     map = map.append(OTHER_TOWN);
                 }
             }
-            map = map.append(getOrDefault(HELP, help++, Component.empty()));
             map = map.append(Component.newline());
+        }
+
+        for (Component helpLine : HELP) {
+            map = map.append(helpLine).append(Component.newline());
         }
 
         map = map.append(Message.MINI_MESSAGE.deserialize(messages.getTown().getTownyMapFooter().getMessage()));

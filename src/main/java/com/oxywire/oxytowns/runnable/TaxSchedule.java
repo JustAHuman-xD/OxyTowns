@@ -9,6 +9,7 @@ import com.oxywire.oxytowns.events.TaxCollectionEvent;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -72,7 +73,11 @@ public final class TaxSchedule {
             final int currentHour = Instant.now().atZone(config.getTimezone()).getHour();
 
             if (config.getHour() - 1 == currentHour && !isSameDay(UpkeepTimes.get().getLastUpkeepWarning(), System.currentTimeMillis())) {
-                Messages.get().getTax().getCollectionWarning().send(Bukkit.getServer(), Formatter.number("time", 60 - LocalDateTime.now().getMinute()));
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    OxyTownsPlugin.get().getTownCache().getTownByPlayer(player).ifPresent($ -> {
+                        Messages.get().getTax().getCollectionWarning().send(player, Formatter.number("time", 60 - LocalDateTime.now().getMinute()));
+                    });
+                }
                 UpkeepTimes.get().setLastUpkeepWarning(System.currentTimeMillis());
                 OxyTownsPlugin.configManager.save(UpkeepTimes.get());
             }

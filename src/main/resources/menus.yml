@@ -1221,6 +1221,7 @@ singles:
           - "<gray>Financial Overview."
           - ""
           - "<gold>Town Balance: <yellow>$<worth>"
+          - "<gold>Town Capacity: <yellow>$<capacity>"
           - "<gold>Town Upkeep: <yellow>$<upkeep>"
           - ""
           - "<yellow>/town deposit <number>"
@@ -1335,6 +1336,16 @@ singles:
           - "<white>This will allow you to have more members."
         slots:
           - 21
+      upgrade-BANK_CAPACITY:
+        material: GOLD_INGOT
+        display-name: "<c:#ff9f30><b>Bank Capacity"
+        lore:
+          - "<gray>Expand your town!"
+          - ""
+          - "<white>Here you can unlock a higher bank capacity."
+          - "<white>This will allow you to store more currency."
+        slots:
+          - 22
       upgrade-OUTPOSTS:
         material: DARK_OAK_DOOR
         display-name: "<c:#ff9f30><b>Outposts"
@@ -1411,6 +1422,15 @@ singles:
           - ""
           - "<white>Unlocking more members will increase"
           - "<white>the total capacity of your town."
+        slots:
+          - 4
+      upgrade-info-BANK_CAPACITY:
+        material: GOLD_INGOT
+        display-name: "<c:#ff9f30>Info"
+        lore:
+          - ""
+          - "<white>Unlocking a higher bank capacity will"
+          - "<white>increase how much currency your town can hold."
         slots:
           - 4
       upgrade-info-OUTPOSTS:

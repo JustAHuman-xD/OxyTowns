@@ -7,14 +7,20 @@ import com.oxywire.oxytowns.menu.PagedMenu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import lombok.AllArgsConstructor;
+import lombok.Setter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 @AllArgsConstructor
 public final class OutpostsMenu extends PagedMenu {
+    @Setter
+    private static BiConsumer<Player, Location> teleportFunction = Entity::teleportAsync;
 
     private final Town town;
 
@@ -30,7 +36,7 @@ public final class OutpostsMenu extends PagedMenu {
 
         return this.town.getOutpostChunks().stream()
             .map(chunk -> elements.get("outpost").getElement(
-                e -> player.teleportAsync(chunk.getBukkitLocation()),
+                e -> teleportFunction.accept(player, chunk.getBukkitLocation()),
                 Formatter.number("x", chunk.getX()),
                 Formatter.number("z", chunk.getZ()),
                 Placeholder.unparsed("world", chunk.getWorld())
