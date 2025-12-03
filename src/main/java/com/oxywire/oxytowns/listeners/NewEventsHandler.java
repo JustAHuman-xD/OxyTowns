@@ -36,6 +36,7 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.entity.WaterMob;
 import org.bukkit.entity.WindCharge;
@@ -57,6 +58,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
@@ -86,6 +88,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiPredicate;
 
 @SuppressWarnings("unused")
@@ -99,7 +102,8 @@ public class NewEventsHandler implements Listener {
     private static final Set<Material> REDSTONE_MATERIALS = Sets.newHashSet(Material.DISPENSER, Material.DROPPER, Material.HOPPER, Material.DAYLIGHT_DETECTOR,
         Material.REPEATER, Material.COMPARATOR, Material.NOTE_BLOCK, Material.JUKEBOX, Material.CRAFTER);
     private static final Set<Material> DOOR_MATERIALS = EnumSet.noneOf(Material.class);
-    private static final Set<Material> INTERACT_SETS = EnumSet.of(Material.PUMPKIN, Material.CAKE, Material.CAVE_VINES_PLANT, Material.CAVE_VINES, Material.SWEET_BERRY_BUSH, Material.RESPAWN_ANCHOR, Material.DECORATED_POT);
+    private static final Set<Material> ENTITY_INTERACT_SETS = EnumSet.of(Material.FARMLAND);
+    private static final Set<Material> INTERACT_SETS = EnumSet.of(Material.PUMPKIN, Material.CAKE, Material.CAVE_VINES_PLANT, Material.CAVE_VINES, Material.SWEET_BERRY_BUSH, Material.RESPAWN_ANCHOR, Material.DECORATED_POT, Material.FARMLAND);
 
     static {
         CHEST_MATERIALS.addAll(Tag.SHULKER_BOXES.getValues());
@@ -107,6 +111,7 @@ public class NewEventsHandler implements Listener {
         DOOR_MATERIALS.addAll(Tag.DOORS.getValues());
         DOOR_MATERIALS.addAll(Tag.TRAPDOORS.getValues());
         DOOR_MATERIALS.addAll(Tag.FENCE_GATES.getValues());
+        ENTITY_INTERACT_SETS.addAll(DOOR_MATERIALS);
         INTERACT_SETS.addAll(Tag.CANDLES.getValues());
         INTERACT_SETS.addAll(Tag.FLOWER_POTS.getValues());
         INTERACT_SETS.remove(Material.FLOWER_POT); // ?
@@ -116,7 +121,7 @@ public class NewEventsHandler implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if (!cache.isBypassing(event.getPlayer()) && canInteract(event.getPlayer(), event.getBlock().getLocation(), Permission.BLOCK_BREAK, event.getBlock())) {
+        if (!cache.isBypassing(event.getPlayer()) && cannotInteract(event.getPlayer(), event.getBlock().getLocation(), Permission.BLOCK_BREAK, event.getBlock())) {
             event.setCancelled(true);
         }
     }
@@ -131,7 +136,7 @@ public class NewEventsHandler implements Listener {
         if (event.getRemover() instanceof Player player
             && !cache.isBypassing(player)
             && (event.getEntity() instanceof Hanging)
-            && canInteract(player, event.getEntity().getLocation(), Permission.BLOCK_BREAK, event.getEntity())
+            && cannotInteract(player, event.getEntity().getLocation(), Permission.BLOCK_BREAK, event.getEntity())
         ) {
             event.setCancelled(true);
         }
@@ -143,7 +148,7 @@ public class NewEventsHandler implements Listener {
             && projectile.getShooter()  != null
             && projectile.getShooter() instanceof Player player
             && !cache.isBypassing(player)
-            && canInteract(player, event.getEntity().getLocation(), Permission.BLOCK_BREAK, event.getEntity())
+            && cannotInteract(player, event.getEntity().getLocation(), Permission.BLOCK_BREAK, event.getEntity())
         ) {
             event.setCancelled(true);
         }
@@ -159,7 +164,7 @@ public class NewEventsHandler implements Listener {
         else if (event.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof Player player) attacker = player;
         if (attacker == null) return;
 
-        if (!cache.isBypassing(attacker) && canInteract(attacker, event.getEntity().getLocation(), Permission.BLOCK_BREAK, event.getEntity())) {
+        if (!cache.isBypassing(attacker) && cannotInteract(attacker, event.getEntity().getLocation(), Permission.BLOCK_BREAK, event.getEntity())) {
             event.setCancelled(true);
         }
     }
@@ -196,7 +201,7 @@ public class NewEventsHandler implements Listener {
             && projectile.getShooter() instanceof Player player
             && !cache.isBypassing(player)
             && Tag.CAMPFIRES.isTagged(event.getBlock().getType())
-            && canInteract(player, event.getBlock().getLocation(), Permission.BLOCK_BREAK, event.getBlock())
+            && cannotInteract(player, event.getBlock().getLocation(), Permission.BLOCK_BREAK, event.getBlock())
         ) {
             event.setCancelled(true);
         }
@@ -209,7 +214,7 @@ public class NewEventsHandler implements Listener {
             && firework.getShooter() != null
             && firework.getShooter() instanceof Player player
             && !cache.isBypassing(player)
-            && canInteract(player, event.getBlock().getLocation(), Permission.BLOCK_BREAK, event.getBlock())
+            && cannotInteract(player, event.getBlock().getLocation(), Permission.BLOCK_BREAK, event.getBlock())
         ) {
             event.setCancelled(true);
         }
@@ -221,7 +226,7 @@ public class NewEventsHandler implements Listener {
         if (event.getEntity() instanceof Player player
             && !cache.isBypassing(player)
             && event.getTo() == Material.COBWEB
-            && canInteract(player, event.getBlock().getLocation(), Permission.BLOCK_PLACE, event.getBlock())
+            && cannotInteract(player, event.getBlock().getLocation(), Permission.BLOCK_PLACE, event.getBlock())
         ) {
             event.setCancelled(true);
         }
@@ -230,7 +235,7 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
         if (!cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getBlockClicked().getLocation(), Permission.BLOCK_BREAK, event.getBlock())) {
+            && cannotInteract(event.getPlayer(), event.getBlockClicked().getLocation(), Permission.BLOCK_BREAK, event.getBlock())) {
             event.setCancelled(true);
         }
     }
@@ -238,7 +243,7 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onBucketEmpty(PlayerBucketEmptyEvent event) {
         if (!cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getBlock().getLocation(), Permission.BLOCK_PLACE, event.getBlock())) {
+            && cannotInteract(event.getPlayer(), event.getBlock().getLocation(), Permission.BLOCK_PLACE, event.getBlock())) {
             event.setCancelled(true);
         }
     }
@@ -250,8 +255,33 @@ public class NewEventsHandler implements Listener {
         }
 
         if (!cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getBlock().getLocation(), Permission.BLOCK_PLACE, event.getBlockPlaced())) {
+            && cannotInteract(event.getPlayer(), event.getBlock().getLocation(), Permission.BLOCK_PLACE, event.getBlockPlaced())) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityInteract(EntityInteractEvent event) {
+        if (!ENTITY_INTERACT_SETS.contains(event.getBlock().getType())) {
+            return;
+        }
+
+        Location location = event.getBlock().getLocation();
+        Town town = cache.getTownByLocation(location);
+        if (town == null) {
+            return;
+        }
+
+        switch(town.getEntityInteractionSetting()) {
+            case NONE -> event.setCancelled(true);
+            case TAMED -> {
+                if (event.getEntity() instanceof Tameable tameable && tameable.isTamed()
+                    && !cache.isBypassing(tameable.getOwnerUniqueId())
+                    && cannotInteract(tameable.getOwnerUniqueId(), location, Permission.BLOCK_BREAK, event.getBlock())) {
+                    event.setCancelled(true);
+                }
+            }
+            case ALL -> {}
         }
     }
 
@@ -260,7 +290,7 @@ public class NewEventsHandler implements Listener {
         if (event.getClickedBlock() != null
             && INTERACT_SETS.contains(event.getClickedBlock().getType())
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BLOCK_BREAK, event.getClickedBlock())
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BLOCK_BREAK, event.getClickedBlock())
         ) {
             event.setCancelled(true);
         }
@@ -270,7 +300,7 @@ public class NewEventsHandler implements Listener {
     public void onHangingPlace(HangingPlaceEvent event) {
         if (event.getPlayer() != null
         && !cache.isBypassing(event.getPlayer())
-        && canInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.BLOCK_PLACE, event.getEntity())) {
+        && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.BLOCK_PLACE, event.getEntity())) {
             event.setCancelled(true);
         }
     }
@@ -279,7 +309,7 @@ public class NewEventsHandler implements Listener {
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         if (event.getRightClicked() instanceof Hanging
         && !cache.isBypassing(event.getPlayer())
-        && canInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.BLOCK_PLACE, event.getRightClicked())) {
+        && cannotInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.BLOCK_PLACE, event.getRightClicked())) {
             event.setCancelled(true);
         }
     }
@@ -293,7 +323,7 @@ public class NewEventsHandler implements Listener {
                     || MaterialSetTag.ALL_SIGNS.isTagged(event.getClickedBlock().getType())
             )
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BLOCK_PLACE, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BLOCK_PLACE, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -301,7 +331,7 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
         if (!cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getBlockClicked().getLocation(), Permission.BLOCK_PLACE, event.getBlockClicked())) {
+            && cannotInteract(event.getPlayer(), event.getBlockClicked().getLocation(), Permission.BLOCK_PLACE, event.getBlockClicked())) {
             event.setCancelled(true);
         }
     }
@@ -312,7 +342,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && CHEST_MATERIALS.contains(event.getClickedBlock().getType())
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.CHESTS, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.CHESTS, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -321,7 +351,7 @@ public class NewEventsHandler implements Listener {
     public void onChestCartInteract(PlayerInteractEntityEvent event) {
         if (event.getRightClicked() instanceof StorageMinecart
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.CHESTS, event.getRightClicked())) {
+            && cannotInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.CHESTS, event.getRightClicked())) {
             event.setCancelled(true);
         }
     }
@@ -332,7 +362,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && FURNACE_MATERIALS.contains(event.getClickedBlock().getType())
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.FURNACES, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.FURNACES, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -343,7 +373,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && DOOR_MATERIALS.contains(event.getClickedBlock().getType())
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.DOORS, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.DOORS, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -354,7 +384,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && (event.getClickedBlock().getType() == Material.LEVER || Tag.BUTTONS.isTagged(event.getClickedBlock().getType()))
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BUTTONS, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BUTTONS, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -365,7 +395,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.PHYSICAL
             && Tag.PRESSURE_PLATES.isTagged(event.getClickedBlock().getType())
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.PLATES, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.PLATES, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -376,7 +406,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && event.getClickedBlock().getType() == Material.ANVIL
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.ANVIL, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.ANVIL, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -387,7 +417,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && (event.getClickedBlock().getType() == Material.BREWING_STAND || Tag.CAULDRONS.isTagged(event.getClickedBlock().getType()))
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BREWING, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BREWING, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -398,7 +428,7 @@ public class NewEventsHandler implements Listener {
     public void onPlayerInteractEntity$0(PlayerInteractEntityEvent event) {
         if ((event.getRightClicked() instanceof Animals || event.getRightClicked() instanceof Allay)
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.ANIMALS, event.getRightClicked())) {
+            && cannotInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.ANIMALS, event.getRightClicked())) {
             event.setCancelled(true);
         }
     }
@@ -407,7 +437,7 @@ public class NewEventsHandler implements Listener {
     public void onSheepDyeWool(SheepDyeWoolEvent event) {
         if (event.getPlayer() != null
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
+            && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
             event.setCancelled(true);
         }
     }
@@ -415,7 +445,7 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onPlayerLeashEntity(PlayerLeashEntityEvent event) {
         if (!cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
+            && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
             event.setCancelled(true);
         }
     }
@@ -423,7 +453,7 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onPlayerUnleashEntity(PlayerUnleashEntityEvent event) {
         if (!cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
+            && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
             event.setCancelled(true);
         }
     }
@@ -431,7 +461,7 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onPlayerShearEntity(PlayerShearEntityEvent event) {
         if (!cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
+            && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
             event.setCancelled(true);
         }
     }
@@ -441,7 +471,7 @@ public class NewEventsHandler implements Listener {
         if (!(event.getEntity() instanceof Animals) && !(event.getEntity() instanceof WaterMob)) return;
         if (!(event.getDamageSource().getCausingEntity() instanceof Player player)) return;
 
-        if (!cache.isBypassing(player) && canInteract(player, event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
+        if (!cache.isBypassing(player) && cannotInteract(player, event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
             event.setCancelled(true);
         }
     }
@@ -452,12 +482,12 @@ public class NewEventsHandler implements Listener {
             final Entity attacker = event.getDamager();
             final Entity target = event.getEntity();
 
-            if (attacker instanceof Player player && !cache.isBypassing(player) && canInteract(player, target.getLocation(), Permission.ANIMALS, target)) {
+            if (attacker instanceof Player player && !cache.isBypassing(player) && cannotInteract(player, target.getLocation(), Permission.ANIMALS, target)) {
                 event.setCancelled(true);
             } else if (attacker instanceof Projectile projectile
                 && projectile.getShooter() instanceof Player player
                 && !cache.isBypassing(player)
-                && canInteract(player, target.getLocation(), Permission.ANIMALS, target)) {
+                && cannotInteract(player, target.getLocation(), Permission.ANIMALS, target)) {
                 event.setCancelled(true);
             }
         }
@@ -468,7 +498,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && (event.getClickedBlock().getType() == Material.BEEHIVE || event.getClickedBlock().getType() == Material.BEE_NEST)
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.ANIMALS, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.ANIMALS, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -479,7 +509,7 @@ public class NewEventsHandler implements Listener {
             && event.getItem() != null
             && MaterialTags.SPAWN_EGGS.isTagged(event.getItem())
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.ANIMALS, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.ANIMALS, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -487,7 +517,7 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onPlayerBucketEntity(PlayerBucketEntityEvent event) {
         if (!cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
+            && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
             event.setCancelled(true);
         }
     }
@@ -498,7 +528,7 @@ public class NewEventsHandler implements Listener {
     public void onVehicleEnter(VehicleEnterEvent event) {
         if (event.getEntered() instanceof Player player
             && !cache.isBypassing(player)
-            && canInteract(player, event.getVehicle().getLocation(), Permission.VEHICLES, event.getEntered())) {
+            && cannotInteract(player, event.getVehicle().getLocation(), Permission.VEHICLES, event.getEntered())) {
             event.setCancelled(true);
         }
     }
@@ -509,7 +539,7 @@ public class NewEventsHandler implements Listener {
             || event.getEntity() instanceof Minecart)
             && event.getPlayer() != null
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.BLOCK_PLACE, event.getEntity())
+            && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.BLOCK_PLACE, event.getEntity())
         ) {
             event.setCancelled(true);
         }
@@ -519,7 +549,7 @@ public class NewEventsHandler implements Listener {
     public void onVehicleDamage(VehicleDamageEvent event) {
         if (event.getAttacker() instanceof Player player
             && !cache.isBypassing(player)
-            && canInteract(player, event.getVehicle().getLocation(), Permission.VEHICLES, event.getVehicle())
+            && cannotInteract(player, event.getVehicle().getLocation(), Permission.VEHICLES, event.getVehicle())
         ) {
             event.setCancelled(true);
         }
@@ -532,7 +562,7 @@ public class NewEventsHandler implements Listener {
         && event.getRightClicked() instanceof Vehicle
         && !(event.getRightClicked() instanceof Pig)
         && !cache.isBypassing(event.getPlayer())
-        && canInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.VEHICLES, event.getRightClicked())) {
+        && cannotInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.VEHICLES, event.getRightClicked())) {
             event.setCancelled(true);
         }
     }
@@ -543,7 +573,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && REDSTONE_MATERIALS.contains(event.getClickedBlock().getType())
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.REDSTONE, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.REDSTONE, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -552,7 +582,7 @@ public class NewEventsHandler implements Listener {
     public void onHopperCartInteract(PlayerInteractEntityEvent event) {
         if (event.getRightClicked() instanceof HopperMinecart
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.REDSTONE, event.getRightClicked())) {
+            && cannotInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.REDSTONE, event.getRightClicked())) {
             event.setCancelled(true);
         }
     }
@@ -563,7 +593,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.PHYSICAL
             && event.getClickedBlock().getType() == Material.TRIPWIRE
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.REDSTONE, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.REDSTONE, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -580,7 +610,7 @@ public class NewEventsHandler implements Listener {
         if (attacker == null) return;
 
         if (cache.isBypassing(attacker)) return;
-        if (!canInteract(attacker, event.getEntity().getLocation(), Permission.ARMOR_STAND, event.getEntity())) return;
+        if (!cannotInteract(attacker, event.getEntity().getLocation(), Permission.ARMOR_STAND, event.getEntity())) return;
 
         event.setCancelled(true);
     }
@@ -590,7 +620,7 @@ public class NewEventsHandler implements Listener {
         if (event.getCaught() == null || !(event.getCaught() instanceof ArmorStand)) return;
 
         if (cache.isBypassing(event.getPlayer())) return;
-        if (!canInteract(event.getPlayer(), event.getCaught().getLocation(), Permission.ARMOR_STAND, event.getCaught())) return;
+        if (!cannotInteract(event.getPlayer(), event.getCaught().getLocation(), Permission.ARMOR_STAND, event.getCaught())) return;
 
         event.setCancelled(true);
     }
@@ -600,7 +630,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && event.getClickedBlock().getType() == Material.ARMOR_STAND
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.ARMOR_STAND, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.ARMOR_STAND, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -612,7 +642,7 @@ public class NewEventsHandler implements Listener {
             && event.getInteractionPoint() != null
             && event.getItem().getType() == Material.ARMOR_STAND
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getInteractionPoint(), Permission.ARMOR_STAND, event.getItem())) {
+            && cannotInteract(event.getPlayer(), event.getInteractionPoint(), Permission.ARMOR_STAND, event.getItem())) {
             event.setCancelled(true);
         }
     }
@@ -621,7 +651,7 @@ public class NewEventsHandler implements Listener {
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
         if (event.getRightClicked() instanceof ArmorStand
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.ARMOR_STAND, event.getRightClicked())) {
+            && cannotInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.ARMOR_STAND, event.getRightClicked())) {
             event.setCancelled(true);
         }
     }
@@ -632,7 +662,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && event.getClickedBlock().getType() == Material.COMPOSTER
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.COMPOSTING, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.COMPOSTING, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -643,7 +673,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && event.getClickedBlock().getType() == Material.BEACON
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BEACON, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BEACON, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -652,7 +682,7 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onPlayerTakeLecternBook(PlayerTakeLecternBookEvent event) {
         if (!cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getLectern().getLocation(), Permission.LECTERN, event.getLectern())) {
+            && cannotInteract(event.getPlayer(), event.getLectern().getLocation(), Permission.LECTERN, event.getLectern())) {
             event.setCancelled(true);
         }
     }
@@ -662,7 +692,7 @@ public class NewEventsHandler implements Listener {
         if (event.getBlock().getType() == Material.LECTERN
             && Tag.ITEMS_LECTERN_BOOKS.isTagged(event.getItemInHand().getType())
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getBlock().getLocation(), Permission.LECTERN, event.getBlock())
+            && cannotInteract(event.getPlayer(), event.getBlock().getLocation(), Permission.LECTERN, event.getBlock())
         ) {
             event.setCancelled(true);
         }
@@ -758,7 +788,7 @@ public class NewEventsHandler implements Listener {
         if (!(event.getEntity() instanceof WindCharge windCharge)) return;
         if (!(windCharge.getShooter() instanceof Player player)) return;
 
-        if (!cache.isBypassing(player) && canInteract(player, windCharge.getLocation(), Permission.BLOCK_BREAK, Material.AIR)) {
+        if (!cache.isBypassing(player) && cannotInteract(player, windCharge.getLocation(), Permission.BLOCK_BREAK, Material.AIR)) {
             event.setCancelled(true);
         }
     }
@@ -771,7 +801,7 @@ public class NewEventsHandler implements Listener {
         Entity source = tntPrimed.getSource();
 
         if (source instanceof Player player) {
-            if (!cache.isBypassing(player) && canInteract(player, location, Permission.BLOCK_BREAK, Material.AIR)) {
+            if (!cache.isBypassing(player) && cannotInteract(player, location, Permission.BLOCK_BREAK, Material.AIR)) {
                 event.setCancelled(true);
             }
         } else {
@@ -791,7 +821,7 @@ public class NewEventsHandler implements Listener {
         BlockState first = event.getBlocks().get(0);
         if (event.getEntity() instanceof Player player
             && !cache.isBypassing(player)
-            && canInteract(player, first.getLocation(), Permission.BLOCK_PLACE, first.getBlock().getType())
+            && cannotInteract(player, first.getLocation(), Permission.BLOCK_PLACE, first.getBlock().getType())
         ) {
             event.setCancelled(true);
         }
@@ -801,7 +831,7 @@ public class NewEventsHandler implements Listener {
     public void onEntityBlockForm(EntityBlockFormEvent event) {
         if (event.getEntity() instanceof Player player
             && !cache.isBypassing(player)
-            && canInteract(player, event.getBlock().getLocation(), Permission.BLOCK_PLACE, event.getBlock().getType())
+            && cannotInteract(player, event.getBlock().getLocation(), Permission.BLOCK_PLACE, event.getBlock().getType())
         ) {
             event.setCancelled(true);
         }
@@ -925,7 +955,7 @@ public class NewEventsHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK
             && event.getClickedBlock().getType() == Material.ROOTED_DIRT
             && !cache.isBypassing(event.getPlayer())
-            && canInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BLOCK_BREAK, event.getClickedBlock())) {
+            && cannotInteract(event.getPlayer(), event.getClickedBlock().getLocation(), Permission.BLOCK_BREAK, event.getClickedBlock())) {
             event.setCancelled(true);
         }
     }
@@ -936,7 +966,7 @@ public class NewEventsHandler implements Listener {
             && event.getEntity().getShooter() != null
             && event.getEntity().getShooter() instanceof Player player
             && !cache.isBypassing(player)
-            && canInteract(player, event.getEntity().getLocation(), Permission.BLOCK_BREAK, event.getEntity())
+            && cannotInteract(player, event.getEntity().getLocation(), Permission.BLOCK_BREAK, event.getEntity())
         ) {
             event.setCancelled(true);
         }
@@ -971,18 +1001,29 @@ public class NewEventsHandler implements Listener {
         return currentTown == null || targetTown == null;
     }
 
+    /**
+     * Check if a player can interact with something at a specific location
+     *
+     * @param player    the player to check
+     * @param location   the location to check
+     * @param permission the permission to check
+     * @return if the player cannot interact at the specific location
+     */
+    private boolean cannotInteract(final Player player, final Location location, final Permission permission, Object queryObject) {
+        return cannotInteract(player.getUniqueId(), location, permission, queryObject);
+    }
 
     /**
      * Check if a player can interact with something at a specific location
      *
-     * @param player     the player to check
+     * @param playerId     the player to check
      * @param location   the location to check
      * @param permission the permission to check
-     * @return if the player can interact at the specific location
+     * @return if the player cannot interact at the specific location
      */
-    private boolean canInteract(final Player player, final Location location, final Permission permission, Object queryObject) {
+    private boolean cannotInteract(final UUID playerId, final Location location, final Permission permission, Object queryObject) {
         return !OxyTownsPlugin.get().getOxyTownsApi().hasPermission(
-            player.getUniqueId(),
+            playerId,
             permission,
             ChunkPosition.chunkPosition(location),
             queryObject

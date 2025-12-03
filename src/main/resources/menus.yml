@@ -1537,7 +1537,7 @@ singles:
           - ""
           - "<yellow>■ Left Click to switch!"
         slots:
-          - 23
+          - 20
       mobs:
         material: ZOMBIE_HEAD
         display-name: "<c:#ff9f30><b>Hostile Mobs Status"
@@ -1549,7 +1549,7 @@ singles:
           - ""
           - "<yellow>■ Left Click to switch!"
         slots:
-          - 24
+          - 23
       spawn-setting:
         material: RED_BED
         display-name: "<c:#ff9f30><b>Town Spawn Status"
@@ -1562,6 +1562,18 @@ singles:
           - "<yellow>■ Left Click to switch!"
         slots:
           - 21
+      entity-interactions:
+        material: SCULK_SENSOR
+        display-name: "<c:#ff9f30><b>Entity Interactions Status"
+        lore:
+          - "<gray>Whether you want to allow entities"
+          - "<gray>to interact within your town."
+          - ""
+          - "<c:#f7d3a3>Status: <white><status>"
+          - ""
+          - "<yellow>■ Left Click to switch!"
+        slots:
+          - 24
   PlotMenu:
     title: "Plot"
     type: CHEST

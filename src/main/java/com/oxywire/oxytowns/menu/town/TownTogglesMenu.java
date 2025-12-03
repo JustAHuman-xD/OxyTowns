@@ -63,5 +63,15 @@ public final class TownTogglesMenu extends Menu {
             },
             Formatter.booleanChoice("status", this.town.getToggle(Setting.MOBS))
         );
+
+        Menu.set(
+            contents,
+            elements.get("entity-interactions"),
+            e -> {
+                this.town.nextEntityInteractionSetting();
+                open(player, this.town);
+            },
+            Placeholder.unparsed("status", this.town.getEntityInteractionSetting().getName())
+        );
     }
 }

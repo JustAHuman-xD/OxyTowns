@@ -18,6 +18,7 @@ import com.oxywire.oxytowns.entities.types.PlotType;
 import com.oxywire.oxytowns.entities.types.Role;
 import com.oxywire.oxytowns.entities.types.Upgrade;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
+import com.oxywire.oxytowns.entities.types.settings.EntityInteractionSetting;
 import com.oxywire.oxytowns.entities.types.settings.Setting;
 import com.oxywire.oxytowns.entities.types.settings.SpawnSetting;
 import com.oxywire.oxytowns.menu.town.VaultMenu;
@@ -77,6 +78,7 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
     private final List<VaultMenu> vaults;
     private final Set<BanEntry> bans;
     private SpawnSetting spawnSetting;
+    private EntityInteractionSetting entityInteractionSetting;
     private final Map<Setting, Boolean> townToggles;
     @Getter
     private final Date creationDate;
@@ -100,6 +102,7 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
         this.vaults = Lists.newArrayList(new VaultMenu(Config.get().getTownVaults().getRows(), "Town Vault"));
         this.bans = Sets.newConcurrentHashSet();
         this.spawnSetting = SpawnSetting.MEMBERS;
+        this.entityInteractionSetting = EntityInteractionSetting.TAMED;
         this.townToggles = new EnumMap<>(Map.of(Setting.PVP, false, Setting.OPEN, false));
         this.trusted = Sets.newConcurrentHashSet();
         this.creationDate = new Date();
@@ -660,7 +663,14 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
      * Helper method to set the next spawn setting in the toggles.
      */
     public void setNextSpawnSetting() {
-        this.spawnSetting = this.spawnSetting.getNextSetting(this.spawnSetting);
+        this.spawnSetting = this.spawnSetting.getNext();
+    }
+
+    /**
+     * Helper method to set the next entity interaction setting in the toggles.
+     */
+    public void nextEntityInteractionSetting() {
+        this.entityInteractionSetting = this.entityInteractionSetting.getNext();
     }
 
     public boolean isTrusted(final UUID uuid) {

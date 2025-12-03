@@ -894,7 +894,7 @@ public final class Menus {
                             .setDisplayName("Toggle Town Spawn Status")
                             .setLore(
                                 List.of(
-                                    "<gray>Status: <green><spawn-setting>",
+                                    "<gray>Status: <green><status>",
                                     "",
                                     "<yellow>■ Click to switch!"
                                 )
@@ -912,7 +912,7 @@ public final class Menus {
                             ),
                         "join", new MenuElement()
                             .setMaterial(Material.BARRIER)
-                            .setSlot(23)
+                            .setSlot(20)
                             .setDisplayName("Town Join Status")
                             .setLore(
                                 List.of(
@@ -923,11 +923,22 @@ public final class Menus {
                             ),
                         "mobs", new MenuElement()
                             .setMaterial(Material.ZOMBIE_HEAD)
-                            .setSlot(24)
+                            .setSlot(23)
                             .setDisplayName("Toggle Mobs")
                             .setLore(
                                 List.of(
                                     "<gray>Status: <status:Enabled:Disabled>",
+                                    "",
+                                    "<yellow>■ Click to switch!"
+                                )
+                            ),
+                        "entity-interactions", new MenuElement()
+                            .setMaterial(Material.SCULK_SENSOR)
+                            .setSlot(24)
+                            .setDisplayName("Entity Interactions Status")
+                            .setLore(
+                                List.of(
+                                    "<gray>Status: <green><status>",
                                     "",
                                     "<yellow>■ Click to switch!"
                                 )
