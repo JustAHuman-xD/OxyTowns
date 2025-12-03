@@ -12,6 +12,8 @@ public enum Permission {
      */
     BLOCK_BREAK(PermissionType.GLOBAL),
     BLOCK_PLACE(PermissionType.GLOBAL),
+    PROJECTILES(PermissionType.GLOBAL),
+    RAIDS(PermissionType.GLOBAL),
     CHESTS(PermissionType.GLOBAL),
     FURNACES(PermissionType.GLOBAL),
     DOORS(PermissionType.GLOBAL),

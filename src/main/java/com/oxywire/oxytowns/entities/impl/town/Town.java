@@ -687,7 +687,7 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
     }
 
     public Location getHome() {
-        return this.spawnPosition.getBukkitLocation();
+        return this.spawnPosition == null ? null : this.spawnPosition.getBukkitLocation();
     }
 
     public void setHome(final Location location) {

@@ -6,5 +6,7 @@ public enum Setting {
      */
     PVP,
     OPEN,
-    MOBS
+    MOBS,
+    GRIEF,
+    RAIDS
 }

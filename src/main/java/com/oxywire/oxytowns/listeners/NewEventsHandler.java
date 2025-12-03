@@ -22,12 +22,14 @@ import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.BrushableBlock;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Enemy;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Hanging;
 import org.bukkit.entity.Minecart;
@@ -38,6 +40,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.Villager;
 import org.bukkit.entity.WaterMob;
 import org.bukkit.entity.WindCharge;
 import org.bukkit.entity.minecart.HopperMinecart;
@@ -49,10 +52,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockReceiveGameEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -61,8 +66,11 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.SheepDyeWoolEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
@@ -79,6 +87,7 @@ import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerUnleashEntityEvent;
+import org.bukkit.event.raid.RaidTriggerEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.world.PortalCreateEvent;
@@ -103,7 +112,9 @@ public class NewEventsHandler implements Listener {
         Material.REPEATER, Material.COMPARATOR, Material.NOTE_BLOCK, Material.JUKEBOX, Material.CRAFTER);
     private static final Set<Material> DOOR_MATERIALS = EnumSet.noneOf(Material.class);
     private static final Set<Material> ENTITY_INTERACT_SETS = EnumSet.of(Material.FARMLAND);
-    private static final Set<Material> INTERACT_SETS = EnumSet.of(Material.PUMPKIN, Material.CAKE, Material.CAVE_VINES_PLANT, Material.CAVE_VINES, Material.SWEET_BERRY_BUSH, Material.RESPAWN_ANCHOR, Material.DECORATED_POT, Material.FARMLAND);
+    private static final Set<Material> INTERACT_SETS = EnumSet.of(Material.PUMPKIN, Material.CAKE, Material.CAVE_VINES_PLANT, Material.CAVE_VINES, Material.SWEET_BERRY_BUSH, Material.RESPAWN_ANCHOR, Material.DECORATED_POT, Material.FARMLAND, Material.SCULK_SENSOR, Material.CALIBRATED_SCULK_SENSOR);
+    private static final Set<EntityType> PERMITTED_CHANGERS = EnumSet.of(EntityType.PLAYER, EntityType.VILLAGER, EntityType.TURTLE, EntityType.BEE, EntityType.LIGHTNING_BOLT, EntityType.FALLING_BLOCK, EntityType.SPLASH_POTION, EntityType.LINGERING_POTION);
+    private static final Set<Material> PERMITTED_CHANGES = EnumSet.of(Material.BIG_DRIPLEAF);
 
     static {
         CHEST_MATERIALS.addAll(Tag.SHULKER_BOXES.getValues());
@@ -135,7 +146,6 @@ public class NewEventsHandler implements Listener {
     public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
         if (event.getRemover() instanceof Player player
             && !cache.isBypassing(player)
-            && (event.getEntity() instanceof Hanging)
             && cannotInteract(player, event.getEntity().getLocation(), Permission.BLOCK_BREAK, event.getEntity())
         ) {
             event.setCancelled(true);
@@ -232,6 +242,57 @@ public class NewEventsHandler implements Listener {
         }
     }
 
+    // Brushable blocks
+    public void onEntityChangeBlock$2(EntityChangeBlockEvent event) {
+        if (event.getEntity() instanceof Player player
+            && !cache.isBypassing(player)
+            && event.getBlock().getState(false) instanceof BrushableBlock
+            && cannotInteract(player, event.getBlock().getLocation(), Permission.BLOCK_BREAK, event.getBlock())
+        ) {
+            event.setCancelled(true);
+        }
+    }
+
+    // Mob Griefing
+    @EventHandler
+    public void onEntityChangeBlock$3(EntityChangeBlockEvent event) {
+        if (!PERMITTED_CHANGERS.contains(event.getEntityType())
+            && !PERMITTED_CHANGES.contains(event.getTo())) {
+            Town town = cache.getTownByLocation(event.getBlock().getLocation());
+            if (town != null && !town.getToggle(Setting.GRIEF)) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+        Town town = cache.getTownByLocation(event.getLocation());
+        if (town != null && !town.getToggle(Setting.GRIEF)) {
+            event.setCancelled(true);
+        }
+    }
+
+    // Raids
+    @EventHandler
+    public void onRaidTrigger(RaidTriggerEvent event) {
+        Town town = cache.getTownByLocation(event.getPlayer().getLocation());
+        if (town != null
+            && (!town.getToggle(Setting.RAIDS) || cannotInteract(event.getPlayer(), event.getPlayer().getLocation(), Permission.RAIDS, null))) {
+            event.setCancelled(true);
+        }
+    }
+
+    // Projectiles
+    @EventHandler
+    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+        if (event.getEntity().getShooter() instanceof Player player
+            && !cache.isBypassing(player)
+            && cannotInteract(player, event.getEntity().getLocation(), Permission.PROJECTILES, event.getEntity())) {
+            event.setCancelled(true);
+        }
+    }
+
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
         if (!cache.isBypassing(event.getPlayer())
@@ -262,7 +323,7 @@ public class NewEventsHandler implements Listener {
 
     @EventHandler
     public void onEntityInteract(EntityInteractEvent event) {
-        if (!ENTITY_INTERACT_SETS.contains(event.getBlock().getType())) {
+        if (event.getEntity() instanceof Villager || !ENTITY_INTERACT_SETS.contains(event.getBlock().getType())) {
             return;
         }
 
@@ -445,7 +506,17 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onPlayerLeashEntity(PlayerLeashEntityEvent event) {
         if (!cache.isBypassing(event.getPlayer())
-            && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
+            && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.LEASH, event.getEntity())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityTargetLivingEntity(EntityTargetLivingEntityEvent event) {
+        if (event.getReason() == EntityTargetEvent.TargetReason.TEMPT
+            && event.getTarget() instanceof Player player
+            && !cache.isBypassing(player)
+            && cannotInteract(player, event.getEntity().getLocation(), Permission.LEASH, event.getEntity())) {
             event.setCancelled(true);
         }
     }
@@ -453,7 +524,7 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onPlayerUnleashEntity(PlayerUnleashEntityEvent event) {
         if (!cache.isBypassing(event.getPlayer())
-            && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.ANIMALS, event.getEntity())) {
+            && cannotInteract(event.getPlayer(), event.getEntity().getLocation(), Permission.LEASH, event.getEntity())) {
             event.setCancelled(true);
         }
     }
@@ -527,8 +598,9 @@ public class NewEventsHandler implements Listener {
     @EventHandler
     public void onVehicleEnter(VehicleEnterEvent event) {
         if (event.getEntered() instanceof Player player
+            && !(event.getVehicle() instanceof Tameable tameable && tameable.isTamed() && player.getUniqueId().equals(tameable.getOwnerUniqueId()))
             && !cache.isBypassing(player)
-            && cannotInteract(player, event.getVehicle().getLocation(), Permission.VEHICLES, event.getEntered())) {
+            && cannotInteract(player, event.getVehicle().getLocation(), Permission.VEHICLES, event.getVehicle())) {
             event.setCancelled(true);
         }
     }
@@ -583,6 +655,15 @@ public class NewEventsHandler implements Listener {
         if (event.getRightClicked() instanceof HopperMinecart
             && !cache.isBypassing(event.getPlayer())
             && cannotInteract(event.getPlayer(), event.getRightClicked().getLocation(), Permission.REDSTONE, event.getRightClicked())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onTriggerSensor(BlockReceiveGameEvent event) {
+        if (event.getEntity() instanceof Player player
+            && !cache.isBypassing(player)
+            && cannotInteract(player, event.getBlock().getLocation(), Permission.REDSTONE, event.getBlock())) {
             event.setCancelled(true);
         }
     }
@@ -779,12 +860,12 @@ public class NewEventsHandler implements Listener {
     }
 
     @EventHandler
-    public void onEntityExplode(EntityExplodeEvent event) {
+    public void onEntityExplode$1(EntityExplodeEvent event) {
         event.blockList().removeIf(block -> crossesBorder(event.getEntity().getLocation().getBlock(), block));
     }
 
     @EventHandler
-    public void onEntityExplode$1(EntityExplodeEvent event) {
+    public void onEntityExplode$2(EntityExplodeEvent event) {
         if (!(event.getEntity() instanceof WindCharge windCharge)) return;
         if (!(windCharge.getShooter() instanceof Player player)) return;
 
@@ -794,7 +875,7 @@ public class NewEventsHandler implements Listener {
     }
 
     @EventHandler
-    public void onEntityExplode$2(EntityExplodeEvent event) {
+    public void onEntityExplode$3(EntityExplodeEvent event) {
         if (!(event.getEntity() instanceof TNTPrimed tntPrimed)) return;
 
         Location location = tntPrimed.getLocation();
@@ -810,6 +891,11 @@ public class NewEventsHandler implements Listener {
                 event.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event) {
+        event.blockList().removeIf(block -> crossesBorder(event.getBlock(), block));
     }
 
     @EventHandler

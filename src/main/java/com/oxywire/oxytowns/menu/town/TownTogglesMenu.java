@@ -73,5 +73,25 @@ public final class TownTogglesMenu extends Menu {
             },
             Placeholder.unparsed("status", this.town.getEntityInteractionSetting().getName())
         );
+
+        Menu.set(
+            contents,
+            elements.get("mob-grief"),
+            e -> {
+                this.town.toggleSetting(Setting.GRIEF);
+                open(player, this.town);
+            },
+            Formatter.booleanChoice("status", this.town.getToggle(Setting.GRIEF))
+        );
+
+        Menu.set(
+            contents,
+            elements.get("raids"),
+            e -> {
+                this.town.toggleSetting(Setting.RAIDS);
+                open(player, this.town);
+            },
+            Formatter.booleanChoice("status", this.town.getToggle(Setting.RAIDS))
+        );
     }
 }

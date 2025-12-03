@@ -292,6 +292,16 @@ paged:
         display-name: "<c:#ff9f30>Lecterns"
         slots:
           - 1
+      permission-RAIDS:
+        material: OMINOUS_BOTTLE
+        display-name: "<c:#ff9f30>Raids"
+        slots:
+          - 1
+      permission-PROJECTILES:
+        material: BOW
+        display-name: "<c:#ff9f30>Projectiles"
+        slots:
+          - 1
       permission-REDSTONE:
         material: REDSTONE
         display-name: "<c:#ff9f30>Use Redstone"
@@ -952,6 +962,16 @@ paged:
         display-name: "<c:#ff9f30>Lecterns"
         slots:
           - 1
+      permission-RAIDS:
+        material: OMINOUS_BOTTLE
+        display-name: "<c:#ff9f30>Raids"
+        slots:
+          - 1
+      permission-PROJECTILES:
+        material: BOW
+        display-name: "<c:#ff9f30>Projectiles"
+        slots:
+          - 1
       permission-REDSTONE:
         material: REDSTONE
         display-name: "<c:#ff9f30>Use Redstone"
@@ -1495,7 +1515,7 @@ singles:
   TownTogglesMenu:
     title: "Town Toggles"
     type: CHEST
-    rows: 5
+    rows: 6
     decorator-elements:
       - material: GRAY_STAINED_GLASS_PANE
         display-name: "<gray> "
@@ -1506,14 +1526,16 @@ singles:
           - 26
           - 27
           - 35
-          - 37-44
+          - 36
+          - 44
+          - 46-53
     elements:
       go-home:
         material: RED_STAINED_GLASS_PANE
         display-name: "<red>Return Home"
         lore: []
         slots:
-          - 36
+          - 45
       pvp:
         material: DIAMOND_SWORD
         display-name: "<c:#ff9f30><b>PVP Status"
@@ -1574,6 +1596,31 @@ singles:
           - "<yellow>■ Left Click to switch!"
         slots:
           - 24
+      mob-grief:
+        material: TNT
+        display-name: "<c:#ff9f30><b>Mob Griefing Status"
+        lore:
+          - "<gray>Whether you want to allow mobs"
+          - "<gray>to grief within your town."
+          - ""
+          - "<c:#f7d3a3>Status: <white><status:'<red>Griefing Enabled':'<green>Griefing Disabled'>"
+          - ""
+          - "<yellow>■ Left Click to switch!"
+        slots:
+          - 30
+      raids:
+        material: OMINOUS_BOTTLE
+        display-name: "<c:#ff9f30><b>Raids Status"
+        lore:
+          - "<gray>Whether you want to allow raids"
+          - "<gray>to trigger within your town"
+          - "<gray>by people with permission to."
+          - ""
+          - "<c:#f7d3a3>Status: <white><status:'<red>Raids Enabled':'<green>Raids Disabled'>"
+          - ""
+          - "<yellow>■ Left Click to switch!"
+        slots:
+          - 31
   PlotMenu:
     title: "Plot"
     type: CHEST

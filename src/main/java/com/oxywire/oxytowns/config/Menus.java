@@ -408,6 +408,16 @@ public final class Menus {
                                 .setDisplayName("<gold>Lecterns")
                         ),
                         Map.entry(
+                            "permission-" + Permission.PROJECTILES, new MenuElement()
+                                .setMaterial(Material.BOW)
+                                .setDisplayName("<gold>Projectiles")
+                        ),
+                        Map.entry(
+                            "permission-" + Permission.RAIDS, new MenuElement()
+                                .setMaterial(Material.OMINOUS_BOTTLE)
+                                .setDisplayName("<gold>Raids")
+                        ),
+                        Map.entry(
                             "permission-" + Permission.WITHDRAW, new MenuElement()
                                 .setMaterial(Material.GOLD_INGOT)
                                 .setDisplayName("<gold>Withdraw from the town bank")
