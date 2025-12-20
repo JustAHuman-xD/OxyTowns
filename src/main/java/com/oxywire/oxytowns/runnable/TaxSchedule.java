@@ -69,10 +69,7 @@ public final class TaxSchedule {
         Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (!Config.get().getUpkeep().isEnabled()) return;
 
-            final Config.Upkeep config = Config.get().getUpkeep();
-            final int currentHour = Instant.now().atZone(config.getTimezone()).getHour();
-
-            if (config.getHour() - 1 == currentHour && !isSameDay(UpkeepTimes.get().getLastUpkeepWarning(), System.currentTimeMillis())) {
+            if (!isSameHour(UpkeepTimes.get().getLastUpkeepWarning(), System.currentTimeMillis())) {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     OxyTownsPlugin.get().getTownCache().getTownByPlayer(player).ifPresent($ -> {
                         Messages.get().getTax().getCollectionWarning().send(player, Formatter.number("time", 60 - LocalDateTime.now().getMinute()));
@@ -82,6 +79,8 @@ public final class TaxSchedule {
                 OxyTownsPlugin.configManager.save(UpkeepTimes.get());
             }
 
+            final Config.Upkeep config = Config.get().getUpkeep();
+            final int currentHour = Instant.now().atZone(config.getTimezone()).getHour();
             if (config.getHour() != currentHour || isSameDay(UpkeepTimes.get().getLastUpkeep(), System.currentTimeMillis())) {
                 return;
             }
@@ -96,5 +95,9 @@ public final class TaxSchedule {
 
     private boolean isSameDay(long m1, long m2) {
         return m1 / 86_400_000 == m2 / 86_400_000;
+    }
+
+    private boolean isSameHour(long m1, long m2) {
+        return m1 / 3_600_000 == m2 / 3_600_000;
     }
 }

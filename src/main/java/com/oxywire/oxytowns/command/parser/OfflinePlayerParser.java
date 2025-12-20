@@ -38,14 +38,7 @@ public final class OfflinePlayerParser<C> implements ArgumentParser<C, OfflinePl
             inputQueue.remove();
             return ArgumentParseResult.success(player);
         }
-
-        player = Bukkit.getOfflinePlayer(input);
-        if (!player.hasPlayedBefore()) {
-            return ArgumentParseResult.failure(new OfflinePlayerArgument.OfflinePlayerParseException(input, commandContext));
-        }
-
-        inputQueue.remove();
-        return ArgumentParseResult.success(player);
+        return ArgumentParseResult.failure(new OfflinePlayerArgument.OfflinePlayerParseException(input, commandContext));
     }
 
     @Override
