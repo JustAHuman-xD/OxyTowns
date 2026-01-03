@@ -751,8 +751,9 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
             Formatter.number("outposts", outpostChunks.size()),
             Formatter.number("maxoutposts", getUpgradeValue(Upgrade.OUTPOSTS)),
             Formatter.date("age", creationDate.toInstant().atZone(ZoneId.systemDefault())),
-            Formatter.number("upkeep", Math.ceil(getOutpostAndClaimedChunks().size() * TaxSchedule.getTownTaxValue())),
-            Placeholder.parsed("member-names", members.keySet().stream().map(Bukkit::getOfflinePlayer).map(it -> (it.isOnline() ? "<green>" : "<gray>") + it.getName()).collect(Collectors.joining("<gray>, ")))
+
+            Formatter.number("upkeep", Math.ceil(getOutpostAndClaimedChunks().size() * TaxSchedule.getTownTaxValue()))
+            //Placeholder.parsed("member-names", members.keySet().stream().map(Bukkit::getOfflinePlayer).map(it -> (it.isOnline() ? "<green>" : "<gray>") + it.getName()).collect(Collectors.joining("<gray>, ")))
         };
     }
 }

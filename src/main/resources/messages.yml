@@ -33,7 +33,7 @@ town:
     <red>         You are about to disband your town. Are you sure?
     <gray>
     <gray><italic>                          Please make a choice.
-    <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/t disband confirm><green><bold>[Confirm]</click>
+    <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town disband confirm><green><bold>[Confirm]</click>
     <gray>                 <gold><st>                                             <reset>
   town-disband-success: "<red>The town of <yellow><town><red> fell into ruins."
   error-player-already-in-town: "<yellow><player> <red>is already in a town."
@@ -85,7 +85,7 @@ town:
     <yellow>            <gray>Are you sure you want to transfer mayorship?
     <gray>
     <gray><italic>                          Please make a choice.
-    <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/t setmayor <player> confirm><green><bold>[Accept]</click>
+    <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town setmayor <player> confirm><green><bold>[Accept]</click>
     <gray>                 <gold><st>                                             <reset>
   town-transfer-mayor-success: "<yellow><player> <gold>is now the mayor of the town."
   plot:
@@ -142,9 +142,9 @@ town:
     error-protected-claim: "<red>You can't claim this area."
     error-upgrade-required: "<red>Maximum amount of claimed chunks reached. Buy town upgrades if you need more."
     error-blacklisted-world: "<red>You can't claim in this world."
-    error-cannot-afford-claim: "<red>Your town can't afford this. Deposit money using <yellow>/t deposit <amount><red>."
+    error-cannot-afford-claim: "<red>Your town can't afford this. Deposit money using <yellow>/town deposit <amount><red>."
     error-over-max-radius: "<red>The maximum radius allowed is <yellow><max><red>."
-    error-zero-input: "<red>Please use <yellow>/t claim <red>to claim the current chunk you are standing in."
+    error-zero-input: "<red>Please use <yellow>/town claim <red>to claim the current chunk you are standing in."
     error-negative-input: "<red>Please specify a positive number for the radius to claim."
   unclaim:
     not-claimed: "<red>This area isn't claimed."
@@ -156,7 +156,7 @@ town:
       <red>    This claim contains your town's home. Are you sure you want to unclaim this?
       <gray>
       <gray><italic>                          Please make a choice.
-      <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/t unclaim confirm><green><bold>[Confirm]</click>
+      <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town unclaim confirm><green><bold>[Confirm]</click>
       <gray>                 <gold><st>                                             <reset>
     chunk-linked-outpost: "<red>You can not unclaim this chunk because it is linked to an outpost."
     unclaim-confirm: |
@@ -166,7 +166,7 @@ town:
       <red>    You are about to unclaim a town outpost. Are you sure?
       <gray>
       <gray><italic>                          Please make a choice.
-      <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/t unclaim confirm><green><bold>[Confirm]</click>
+      <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town unclaim confirm><green><bold>[Confirm]</click>
       <gray>                 <gold><st>
   bank:
     error-not-within-town: "<red>You must be within your town to access the town bank."
@@ -209,7 +209,7 @@ player:
     <yellow>               <player> <gray>invited you to join <yellow><town><gray>.
     <gray>
     <gray><italic>                          Please make a choice.
-    <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/t join <town>><green><bold>[Accept]</click>
+    <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town join <town>><green><bold>[Accept]</click>
     <gray>                 <gold><st>                                             <reset>
   already-in-town: "<red>You're already in a town."
   invalid-town: "<red>That's not a valid town."
@@ -244,7 +244,7 @@ admin:
       <red>         You are about to disband this town. Are you sure?
       <gray>
       <gray><italic>                          Please make a choice.
-      <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/ta town disband <town> confirm><green><bold>[Confirm]</click>
+      <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/ta town disband <town> confirm><green><bold>[Confirm]</click>
       <gray>                 <gold><st>                                             <reset>
     disband-success: "<red>You've disbanded the town of <yellow><town><red>."
     bank:

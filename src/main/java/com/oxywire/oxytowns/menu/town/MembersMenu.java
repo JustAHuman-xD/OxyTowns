@@ -7,9 +7,11 @@ import com.oxywire.oxytowns.entities.types.Role;
 import com.oxywire.oxytowns.menu.Menu;
 import com.oxywire.oxytowns.menu.MenuElement;
 import com.oxywire.oxytowns.menu.PagedMenu;
-import com.oxywire.oxytowns.utils.OfflinePlayerIsOnlineComparator;
+import com.oxywire.oxytowns.utils.PlayerIsOnlineComparator;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import lombok.AllArgsConstructor;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -19,12 +21,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 @AllArgsConstructor
 public final class MembersMenu extends PagedMenu {
+
+    // TODO: replace this with something better
+    private static final Map<UUID, String> NAME_CACHE = new HashMap<>();
 
     private final Town town;
 
@@ -43,15 +49,19 @@ public final class MembersMenu extends PagedMenu {
         Menu.set(contents, elements.get("trusted"), e -> TrustedMenu.open(player, this.town));
 
         return this.town.getOwnerAndMembersWithRoles().entrySet().stream()
-            .sorted((a, b) -> OfflinePlayerIsOnlineComparator.INSTANCE.compare(Bukkit.getOfflinePlayer(a.getKey()), Bukkit.getOfflinePlayer(b.getKey())))
+            .sorted((a, b) -> PlayerIsOnlineComparator.INSTANCE.compare(a.getKey(), b.getKey()))
             .map(member -> {
-                final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(member.getKey());
+                final String name = NAME_CACHE.computeIfAbsent(member.getKey(), k -> {
+                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(k);
+                    return offlinePlayer.getName() != null ? offlinePlayer.getName() : k + " (name not cached)";
+                });
                 final ItemStack item = elements.get("member").getItem(
-                    Placeholder.unparsed("name", Objects.requireNonNullElse(offlinePlayer.getName(), "null")),
+                    Placeholder.unparsed("name", Objects.requireNonNullElse(name, member.getKey().toString() + " (name not cached)")),
                     Placeholder.unparsed("role", Message.formatEnum(member.getValue())),
-                    Formatter.booleanChoice("status", offlinePlayer.isOnline())
+                    Formatter.booleanChoice("status", Bukkit.getPlayer(member.getKey()) != null)
                 );
-                item.editMeta(SkullMeta.class, meta -> meta.setOwningPlayer(offlinePlayer));
+                item.setData(DataComponentTypes.PROFILE, ResolvableProfile.resolvableProfile()
+                    .uuid(member.getKey()));
 
                 return ClickableItem.of(
                     item,
