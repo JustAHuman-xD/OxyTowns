@@ -166,7 +166,7 @@ public class OxyTownsPlugin extends JavaPlugin {
                         TagResolver[] placeholders = new TagResolver[] { Placeholder.unparsed("sender", sender.getName()), Placeholder.unparsed("message", context.get("message")), Placeholder.unparsed("town", town.getName()) };
                         Config.get().getTownChat().getFormat().send(town, placeholders);
                         for (Player player : Bukkit.getOnlinePlayers()) {
-                            if (player.getPersistentDataContainer().has(townChatSpyEnabled)) {
+                            if (!town.isMemberOrOwner(player.getUniqueId()) && player.getPersistentDataContainer().has(townChatSpyEnabled)) {
                                 Config.get().getTownChat().getSpyFormat().send(player, placeholders);
                             }
                         }
