@@ -984,21 +984,21 @@ public class NewEventsHandler implements Listener {
             Plot plot = town.getPlot(location);
             // If the plot was at all modified, only allow if it's an arena plot
             // Otherwise, check the town toggle
-            if (plot != null && plot.getType() != PlotType.ARENA) return false;
+            if (plot != null && plot.getType() != PlotType.ARENA) return true;
             else return town.getToggle(Setting.PVP);
         };
 
-        // If the attacker is in wilderness, and the victim is not
+        // If the attacker is in wilderness, and the victim is not, and the attacker is not banned from the victim's town
         if (attackerTown == null) {
-            if (permitsPvpHalfHalf.test(victimTown, victim.getLocation())) return;
+            if (permitsPvpHalfHalf.test(victimTown, victim.getLocation()) && victimTown.checkBan(attacker).isEmpty()) return;
 
             event.setCancelled(true);
             return;
         }
 
-        // If the attacker is in wilderness, and the victim is not
+        // If the attacker is in wilderness, and the victim is not, and the victim is not banned from the attacker's town
         if (victimTown == null) {
-            if (permitsPvpHalfHalf.test(attackerTown, attacker.getLocation())) return;
+            if (permitsPvpHalfHalf.test(attackerTown, attacker.getLocation()) && attackerTown.checkBan(victim).isEmpty()) return;
 
             event.setCancelled(true);
             return;
