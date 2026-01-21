@@ -147,7 +147,9 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
      * @param player      the player unclaiming the chunk
      */
     public void unclaimChunk(final ChunkPosition chunkRegion, final Player player) {
-        this.outpostChunks.removeIf(it -> ChunkPosition.chunkPosition(it).equals(chunkRegion));
+        if (this.outpostChunks.removeIf(it -> ChunkPosition.chunkPosition(it).equals(chunkRegion))) {
+            this.bankValue += Config.get().getOutpostRefund();
+        }
         this.claimedChunks.remove(chunkRegion);
         this.playerPlots.remove(chunkRegion);
         OxyTownsPlugin.get().getTownCache().getTownsMap().remove(chunkRegion);

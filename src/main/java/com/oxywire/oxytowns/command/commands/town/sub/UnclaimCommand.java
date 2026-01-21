@@ -8,11 +8,14 @@ import com.oxywire.oxytowns.command.annotation.AcceptConfirmation;
 import com.oxywire.oxytowns.command.annotation.CreateConfirmation;
 import com.oxywire.oxytowns.command.annotation.MustBeInTown;
 import com.oxywire.oxytowns.command.annotation.SendersTown;
+import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import com.oxywire.oxytowns.utils.TownUtils;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 
 public final class UnclaimCommand {
@@ -47,8 +50,15 @@ public final class UnclaimCommand {
             return;
         }
 
+        if (town.hasOutpost(chunkPosition)) {
+            final Config config = Config.get();
+            final double outpostRefund = config.getOutpostRefund();
+            messages.getTown().getUnclaim().getConfirmOutpostUnclaim().send(sender,
+                Formatter.number("refund", outpostRefund));
+        } else {
+            messages.getTown().getUnclaim().getUnclaimSuccess().send(sender);
+        }
         town.unclaimChunk(chunkPosition, sender);
-        messages.getTown().getUnclaim().getUnclaimSuccess().send(sender);
     }
 
     @CommandMethod("town|t unclaim")
@@ -71,7 +81,10 @@ public final class UnclaimCommand {
 
         if (town.hasOutpost(chunkPosition)) {
             // Check if it's an outpost
-            messages.getTown().getUnclaim().getConfirmOutpostUnclaim().send(sender);
+            final Config config = Config.get();
+            final double outpostRefund = config.getOutpostRefund();
+            messages.getTown().getUnclaim().getConfirmOutpostUnclaim().send(sender,
+                Formatter.number("refund", outpostRefund));
         } else if (town.getHome() != null && chunkPosition.contains(town.getHome())) {
             // Check if it's home chunk
             messages.getTown().getUnclaim().getConfirmHomeBlockUnclaim().send(sender);

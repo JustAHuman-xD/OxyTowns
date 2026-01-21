@@ -4,6 +4,9 @@ claim-price: 150.0
 # This is how much it costs for a town to claim an outpost.
 outpost-price: 50000.0
 
+# This is how much is refunded to a town when unclaiming an outpost (set to 0 to disable).
+outpost-refund: 10000.0
+
 # This is the max chunk radius players can claim using /t claim <radius>.
 # Setting this to 3 means that a 7x7 (total of 49 chunks) can be claimed at once.
 max-claim-radius: 3

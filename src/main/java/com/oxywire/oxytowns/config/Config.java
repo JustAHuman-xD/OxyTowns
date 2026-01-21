@@ -31,6 +31,9 @@ public final class Config {
     private double outpostPrice = 50_000.0;
 
     @Setting
+    private double outpostRefund = 10_000.0;
+
+    @Setting
     private int maxClaimRadius = 1;
 
     @Setting

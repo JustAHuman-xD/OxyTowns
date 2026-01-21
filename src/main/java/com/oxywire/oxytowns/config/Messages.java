@@ -358,6 +358,19 @@ public final class Messages {
         public static final class Outpost {
 
             @Setting
+            private Message claimConfirm = new Message().setMessage("""
+                <gray>
+                <gray>              <gold><st>               </st><gold><bold> Outpost Claim <gold><st>               <reset>
+                <gray>
+                <yellow>               <gray>Are you sure you want to claim this outpost for <yellow>$<price><gray>?
+                <gray>
+                <gray><italic>                          Please make a choice.
+                <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/t outpost claim confirm><green><bold>[Confirm]</click>
+                <gray>                 <gold><st>                                             <reset>
+                """
+            );
+
+            @Setting
             private Message claimSuccessful = new Message().setMessage(
                 "<gold><b>Info</b> <dark_gray>» <yellow><town> <gray>successfully claimed this outpost.");
 
@@ -478,11 +491,16 @@ public final class Messages {
                 <gray>              <gold><st>               </st><gold><bold> Town Unclaim <gold><st>               <reset>
                 <gray>
                 <red>    You are about to unclaim a town outpost. Are you sure?
+                <red>         Your town will be refunded <yellow>$<refund>
                 <gray>
                 <gray><italic>                          Please make a choice.
                 <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/t unclaim confirm><green><bold>[Confirm]</click>
                 <gray>                 <gold><st>
                 """);
+
+            @Setting
+            private Message outpostUnclaimSuccess = new Message().setMessage(
+                "<red><b>Warning</b> <dark_gray>» <gray>Outpost unclaimed. Your town has been refunded <yellow>$<refund><gray>.");
 
         }
 

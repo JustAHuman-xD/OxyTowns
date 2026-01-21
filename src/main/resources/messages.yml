@@ -164,10 +164,12 @@ town:
       <gray>              <gold><st>               </st><gold><bold> Town Unclaim <gold><st>               <reset>
       <gray>
       <red>    You are about to unclaim a town outpost. Are you sure?
+      <red>         Your town will be refunded <yellow>$<refund>
       <gray>
       <gray><italic>                          Please make a choice.
       <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town unclaim confirm><green><bold>[Confirm]</click>
       <gray>                 <gold><st>
+    outpost-unclaim-success: "<red><b>Warning</b> <dark_gray>» <gray>Outpost unclaimed. Your town has been refunded <yellow>$<refund><gray>.");
   bank:
     error-not-within-town: "<red>You must be within your town to access the town bank."
     error-cannot-afford: "<red>Your town can't afford this."
