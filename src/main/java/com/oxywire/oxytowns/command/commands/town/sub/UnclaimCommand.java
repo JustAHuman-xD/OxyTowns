@@ -15,7 +15,6 @@ import com.oxywire.oxytowns.entities.types.perms.Permission;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import com.oxywire.oxytowns.utils.TownUtils;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 
 public final class UnclaimCommand {
@@ -53,7 +52,7 @@ public final class UnclaimCommand {
         if (town.hasOutpost(chunkPosition)) {
             final Config config = Config.get();
             final double outpostRefund = config.getOutpostRefund();
-            messages.getTown().getUnclaim().getConfirmOutpostUnclaim().send(sender,
+            messages.getTown().getUnclaim().getOutpostUnclaimSuccess().send(sender,
                 Formatter.number("refund", outpostRefund));
         } else {
             messages.getTown().getUnclaim().getUnclaimSuccess().send(sender);
