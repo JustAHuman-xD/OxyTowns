@@ -473,7 +473,7 @@ public final class Messages {
                 "<red><b>Error</b> <dark_gray>» <red>You can not unclaim this chunk because it is linked to an outpost.");
 
             @Setting
-            private Message unclaimConfirm = new Message().setMessage("""
+            private Message confirmOutpostUnclaim = new Message().setMessage("""
                 <gray>
                 <gray>              <gold><st>               </st><gold><bold> Town Unclaim <gold><st>               <reset>
                 <gray>

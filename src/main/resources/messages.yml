@@ -159,7 +159,7 @@ town:
       <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town unclaim confirm><green><bold>[Confirm]</click>
       <gray>                 <gold><st>                                             <reset>
     chunk-linked-outpost: "<red>You can not unclaim this chunk because it is linked to an outpost."
-    unclaim-confirm: |
+    confirm-outpost-unclaim: |
       <gray>
       <gray>              <gold><st>               </st><gold><bold> Town Unclaim <gold><st>               <reset>
       <gray>

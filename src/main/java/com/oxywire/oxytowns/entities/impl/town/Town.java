@@ -198,10 +198,10 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
      * @return claimed or not
      */
     public boolean hasClaimed(final ChunkPosition chunkPosition) {
-        if (claimedChunks.contains(chunkPosition)) {
-            return true;
-        }
+        return claimedChunks.contains(chunkPosition) || hasOutpost(chunkPosition);
+    }
 
+    public boolean hasOutpost(final ChunkPosition chunkPosition) {
         for (FinePosition location : this.outpostChunks) {
 //            if (!location.isWorldLoaded()) {
 //                continue; // ??? - We lose the entire world context if it unloads (i.e. on shutdown)

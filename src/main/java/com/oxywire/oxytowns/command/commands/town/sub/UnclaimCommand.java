@@ -69,19 +69,16 @@ public final class UnclaimCommand {
             return;
         }
 
-        // Check if it's a claim but not an outpost
-        if (town.getOutpostChunks().stream().noneMatch(chunkPosition::contains)) {
+        if (town.hasOutpost(chunkPosition)) {
+            // Check if it's an outpost
+            messages.getTown().getUnclaim().getConfirmOutpostUnclaim().send(sender);
+        } else if (town.getHome() != null && chunkPosition.contains(town.getHome())) {
             // Check if it's home chunk
-            if (town.getHome() != null && chunkPosition.contains(town.getHome())) {
-                messages.getTown().getUnclaim().getConfirmHomeBlockUnclaim().send(sender);
-            } else {
-                // It's a regular claim. Unclaim and tell them they unclaimed it.
-                town.unclaimChunk(chunkPosition, sender);
-                messages.getTown().getUnclaim().getUnclaimSuccess().send(sender);
-            }
+            messages.getTown().getUnclaim().getConfirmHomeBlockUnclaim().send(sender);
         } else {
-            // It's an outpost
-            messages.getTown().getUnclaim().getUnclaimConfirm().send(sender);
+            // It's a regular claim. Unclaim and tell them they unclaimed it.
+            town.unclaimChunk(chunkPosition, sender);
+            messages.getTown().getUnclaim().getUnclaimSuccess().send(sender);
         }
     }
 }
