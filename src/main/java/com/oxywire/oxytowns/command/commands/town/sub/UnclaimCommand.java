@@ -12,6 +12,7 @@ import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
+import com.oxywire.oxytowns.menu.town.OutpostsMenu;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import com.oxywire.oxytowns.utils.TownUtils;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
@@ -49,15 +50,17 @@ public final class UnclaimCommand {
             return;
         }
 
-        if (town.hasOutpost(chunkPosition)) {
+        boolean outpost = town.hasOutpost(chunkPosition);
+        town.unclaimChunk(chunkPosition, sender);
+        if (outpost) {
             final Config config = Config.get();
             final double outpostRefund = config.getOutpostRefund();
             messages.getTown().getUnclaim().getOutpostUnclaimSuccess().send(sender,
                 Formatter.number("refund", outpostRefund));
+            OutpostsMenu.open(sender, town);
         } else {
             messages.getTown().getUnclaim().getUnclaimSuccess().send(sender);
         }
-        town.unclaimChunk(chunkPosition, sender);
     }
 
     @CommandMethod("town|t unclaim")

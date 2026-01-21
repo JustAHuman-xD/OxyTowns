@@ -13,6 +13,7 @@ import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.Upgrade;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
+import com.oxywire.oxytowns.menu.town.OutpostsMenu;
 import com.oxywire.oxytowns.utils.RegionUtils;
 import com.oxywire.oxytowns.utils.TownUtils;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
@@ -78,6 +79,7 @@ public final class OutpostClaimCommand {
         messages.getTown().getOutpost().getClaimSuccessful().send(sender,
             Formatter.number("price", outpostPrice),
             Placeholder.unparsed("town", town.getName()));
+        OutpostsMenu.open(sender, town);
     }
 
     @CommandMethod("town|t outpost claim")
