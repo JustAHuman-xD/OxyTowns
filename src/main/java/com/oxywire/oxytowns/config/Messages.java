@@ -710,6 +710,18 @@ public final class Messages {
     public static final class Admin {
 
         @Setting
+        private Message upkeepConfirm = new Message().setMessage("""
+            <gray>
+            <gray>              <gold><st>               </st><gold><bold> Trigger Town Upkeep <gold><st>               <reset>
+            <gray>
+            <yellow>         You are about to trigger town upkeep for <yellow><town><gray>.
+            <gray>
+            <gray><italic>                          Please make a choice.
+            <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/ta upkeep confirm><green><bold>[Confirm]</click>
+            <gray>                 <gold><st>                                             <reset>
+            """);
+
+        @Setting
         private Town town = new Town();
 
         @Setting

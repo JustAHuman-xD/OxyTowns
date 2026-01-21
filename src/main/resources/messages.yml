@@ -233,6 +233,15 @@ player:
   you-were-untrusted: "<gold>You were untrusted in <yellow><town><gold>."
   you-are-now-the-mayor: "<gold>You are now the mayor of <yellow><town><gold>."
 admin:
+  upkeep-confirm: |
+    <gray>
+    <gray>              <gold><st>               </st><gold><bold> Trigger Town Upkeep <gold><st>               <reset>
+    <gray>
+    <yellow>         You are about to trigger town upkeep for <yellow><town><gray>.
+    <gray>
+    <gray><italic>                          Please make a choice.
+    <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/ta upkeep confirm><green><bold>[Confirm]</click>
+    <gray>                 <gold><st>                                             <reset>
   town:
     player-in-town: "<red>That player is already in a town."
     player-not-in-town: "<red>That player is not in a town."
