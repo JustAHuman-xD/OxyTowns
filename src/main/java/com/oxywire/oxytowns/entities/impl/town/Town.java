@@ -74,6 +74,8 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
     private FinePosition spawnPosition;
     @Setter
     private double bankValue;
+    @Setter
+    private boolean missedLastUpkeep;
     private final Map<Upgrade, Integer> townUpgrades;
     private final List<VaultMenu> vaults;
     private final Set<BanEntry> bans;

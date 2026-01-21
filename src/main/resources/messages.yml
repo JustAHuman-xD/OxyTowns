@@ -172,6 +172,7 @@ town:
     outpost-unclaim-success: "<red><b>Warning</b> <dark_gray>» <gray>Outpost unclaimed. Your town has been refunded <yellow>$<refund><gray>.");
   bank:
     error-not-within-town: "<red>You must be within your town to access the town bank."
+    error-must-claim-first: "<red>Your town must claim land before withdrawing from the town bank or making excess deposits."
     error-cannot-afford: "<red>Your town can't afford this."
     error-withdraw-not-allowed: "<red>You are not allowed to withdraw money from your town bank."
     error-deposit-past-max: "<red>That deposit would exceed the town bank's capacity by $<excess>."
@@ -279,7 +280,8 @@ tax:
     <gray>
     <dark_red>(<red>!<dark_red>) <red>A new day is here! Taxes and rent have been collected <dark_red>(<red>!<dark_red>)
     <gray>
-  town-disbanded: "<red>The town of <yellow><town> <red>couldn''t afford to pay taxes."
+  town-unclaimed: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and was unclaimed. (If they miss it again it will be disbanded)"
+  town-disbanded: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and was disbanded."
   collection-warning: |
     <gray>
     <dark_red>(<red>!<dark_red>) <red>Town taxes will be collected in <yellow><time> <red>minutes <dark_red>(<red>!<dark_red>)

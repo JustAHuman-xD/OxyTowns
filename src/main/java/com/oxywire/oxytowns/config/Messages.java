@@ -392,6 +392,9 @@ public final class Messages {
             private Message errorNotWithinTown = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>You must be within your town to access the town bank.");
 
             @Setting
+            private Message errorMustClaimFirst = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>Your town must claim land before withdrawing from the town bank or making excess deposits.");
+
+            @Setting
             private Message errorCannotAfford = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>Your town can't afford this.");
 
             @Setting
@@ -605,8 +608,16 @@ public final class Messages {
             """);
 
         @Setting
+        private Message townOutpostsUnclaimed = new Message().setMessage(
+            "<dark_gray> » <gray>The town of <yellow><town> <gray>couldn't afford to pay taxes and had some outposts repossessed to make up for it.");
+
+        @Setting
+        private Message townUnclaimed = new Message().setMessage(
+            "<dark_gray> » <gray>The town of <yellow><town> <gray>couldn't afford to pay taxes and was unclaimed. (If they miss it again it will be disbanded)");
+
+        @Setting
         private Message townDisbanded = new Message().setMessage(
-            "<dark_gray> » <gray>The town of <yellow><town> <gray>couldn''t afford to pay taxes.");
+            "<dark_gray> » <gray>The town of <yellow><town> <gray>couldn't afford to pay taxes and was disbanded.");
 
         @Setting
         private Message collectionWarning = new Message().setMessage("""

@@ -18,11 +18,16 @@ import java.util.concurrent.CompletableFuture;
 public class TownStorageManager {
 
     private final File dataFile;
+    private final File backupFile;
 
     public TownStorageManager(final OxyTownsPlugin plugin) {
         this.dataFile = new File(plugin.getDataFolder(), "towns");
+        this.backupFile = new File(plugin.getDataFolder(), "towns_backups");
         if (!this.dataFile.exists()) {
             this.dataFile.mkdirs();
+        }
+        if (!this.backupFile.exists()) {
+            this.backupFile.mkdirs();
         }
     }
 
@@ -60,6 +65,25 @@ public class TownStorageManager {
      */
     public void unload(final Town entity) {
         final File file = new File(this.dataFile, entity.getTownId().toString() + ".json");
+        try {
+            Files.writeString(file.toPath(), Json.GSON.toJson(entity, Town.class));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Used to backup a town for any reason
+    *
+     * @param entity the town to backup
+     * @param type  the type of backup (the subfolder name)
+     */
+    public void backup(final Town entity, final String type) {
+        final File backupDir = new File(this.backupFile, type);
+        if (!backupDir.exists()) {
+            backupDir.mkdirs();
+        }
+        final File file = new File(backupDir, entity.getTownId().toString() + ".json");
         try {
             Files.writeString(file.toPath(), Json.GSON.toJson(entity, Town.class));
         } catch (IOException ex) {

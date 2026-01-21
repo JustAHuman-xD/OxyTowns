@@ -255,6 +255,14 @@ blacklisted-worlds:
 upkeep:
   # Whether upkeep is enabled.
   enabled: true
+  # Leniency allows towns to miss an upkeep payment (or multiple depending on configuration) before the town is fully disbanded.
+  leniency:
+    # Whether leniency is enabled. If enabled, instead of being fully disbanded when missing upkeep, the town will have all claims destroyed, but will remain. If the town misses another payment after that, it will be disbanded.
+    enabled: true
+    # If towns should automatically sell outposts to try and cover the cost of upkeep if they can't afford it.
+    sell-outposts: true
+  # should a backup of the town be created under towns_backups/upkeep_disband/ before being disbanded from missing upkeep.
+  backup-before-disband: true
   # This is the amount that the server will collect for every claimed chunk a town has.
   town-value: 25.0
   # The settings below define what time upkeep will be collected.
