@@ -99,5 +99,5 @@ configure<BukkitPluginDescription> {
     main = "com.oxywire.oxytowns.OxyTownsPlugin"
     authors = listOf("SirKillian", "SirSalad", "Glare",)
     depend = listOf("Vault")
-    softDepend = listOf("WorldGuard", "PlaceholderAPI", "squaremap")
+    softDepend = listOf("WorldGuard", "PlaceholderAPI", "squaremap", "PvPManager")
 }

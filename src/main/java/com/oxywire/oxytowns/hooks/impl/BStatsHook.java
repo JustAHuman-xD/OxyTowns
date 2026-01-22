@@ -14,7 +14,7 @@ public final class BStatsHook implements PluginHook {
 
     @Override
     public String getPluginName() {
-        return ""; // Not tied to a specific plugin
+        return "Bstats"; // Not tied to a specific plugin
     }
 
     @Override

@@ -9,6 +9,6 @@ public interface PluginHook {
     String getPluginName();
 
     default boolean isEnabled() {
-        return Bukkit.getPluginManager().isPluginEnabled(getPluginName());
+        return Bukkit.getPluginManager().getPlugin(getPluginName()) != null;
     }
 }
