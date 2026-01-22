@@ -8,9 +8,21 @@ outpost-price: 50000.0
 # Setting this to 3 means that a 7x7 (total of 49 chunks) can be claimed at once.
 max-claim-radius: 3
 
-# This command will be executed in console when a player is banned from a town.
-# Keeping it to "spawn <player>" ensures that the banned player is teleported out of the town.
-ban-console-command: spawn <player>
+town-ban-expel:
+  # Whether banned players should be forcefully expelled from towns they are banned from. (If they manage to enter the town somehow, or if they are in the town at the moment of being banned)
+  enabled: true
+  # How should the player be expelled, see options below.
+  mode: "custom" # Options: "world_spawn", "respawn_point", "command", "custom"
+  # If the mode is command, this is the command that will be run by the console. <player> will be replaced with the player's name.
+  command: spawn <player>
+  # If the mode is custom, this is the location the player will be teleported to.
+  custom:
+    world: "world"
+    x: 0.5
+    y: 100.0
+    z: 0.5
+    yaw: 0.0
+    pitch: 0.0
 
 # These are the plot type settings. This is where you can define what is and isn't allowed in each plot type.
 # Blocks; allows you to configure which blocks can be broken inside said plot type.
@@ -243,6 +255,12 @@ upgrades:
 # Whether PVP is allowed in wilderness. If this is set to false, PVP will only be allowed in arena plots.
 allow-pvp-in-wilderness: true
 
+# If enabled, when a player enters or leaves a town that has pvp enabled/disabled, they will have a notification about the pvp status change.
+pvp-status-enter-exit-messages: true
+
+# For how long in seconds after leaving a pvp-disabled town, should a player still have pvp disabled. (set to 0 to disable)
+leave-no-pvp-grace-period: 30
+
 # These are the worlds where players can NOT claim land.
 blacklisted-worlds:
   - example_world
@@ -282,3 +300,20 @@ town-chat:
   format: "<green>[Town] <white><sender>: <gray><message>"
   # This is the format for any players using /townchatspy (e.g. staff)
   spy-format: "<red>[TownSpy] <white><town>@<sender>: <gray><message>"
+
+hooks:
+  # Whether the bStats integration is enabled.
+  bstats: true
+
+  # Whether the PlaceholderAPI integration is enabled.
+  placeholder-api: true
+
+  squaremap:
+    # Whether the Squaremap integration is enabled.
+    enabled: true
+    # How often in seconds should the town map markers be updated. (This is done asynchronously)
+    update-interval: 30
+
+  pvp-manager:
+    # Whether the pvp manager integration is enabled. If it is it just doesn't tell a player they've entered a safe zone if they are already in combat.
+    enabled: true

@@ -13,7 +13,12 @@ import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.PlotType;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
 import com.oxywire.oxytowns.entities.types.settings.Setting;
+import com.oxywire.oxytowns.hooks.Hooks;
+import com.oxywire.oxytowns.hooks.impl.PvPManagerHook;
 import com.oxywire.oxytowns.utils.ChunkPosition;
+import io.papermc.paper.entity.TeleportFlag;
+import io.papermc.paper.event.entity.EntityMoveEvent;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -83,6 +88,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -96,8 +102,10 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 
 @SuppressWarnings("unused")
@@ -129,6 +137,8 @@ public class NewEventsHandler implements Listener {
         INTERACT_SETS.addAll(Tag.LOGS.getValues());
         INTERACT_SETS.add(Material.DRAGON_EGG);
     }
+
+    private final Map<UUID, Long> pvpGracePeriod = new ConcurrentHashMap<>();
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
@@ -779,50 +789,168 @@ public class NewEventsHandler implements Listener {
         }
     }
 
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        pvpGracePeriod.remove(event.getPlayer().getUniqueId());
+    }
+
+    public void onExitPvpProtection(Player player, boolean pvpOff) {
+        int gracePeriod = Config.get().getLeaveNoPvpGracePeriod();
+        Message message = pvpOff
+            ? Messages.get().getNowLeavingPvpProtectionPvpOff()
+            : Messages.get().getNowLeavingPvpProtection();
+        message.send(player, Formatter.number("grace_period", gracePeriod));
+        if (Config.get().getLeaveNoPvpGracePeriod() <= 0) {
+            return;
+        }
+
+        pvpGracePeriod.put(player.getUniqueId(), System.currentTimeMillis() + (gracePeriod * 1000L));
+    }
+
     // Chunk region information
+    public boolean isVehicleOrAnyPassengerBanned(Player recipient, Entity vehicle, List<UUID> bannedUUIDs) {
+        if (vehicle instanceof Player player && bannedUUIDs.contains(player.getUniqueId()) && !cache.isBypassing(player)) {
+            Messages.get().getPlayer().getBannedWarningTitle().send(recipient != null ? recipient : player);
+            return true;
+        }
+
+        List<Entity> passengers = vehicle.getPassengers();
+        if (passengers.isEmpty()) {
+            return false;
+        }
+
+        for (Entity passenger : passengers) {
+            if (isVehicleOrAnyPassengerBanned(recipient, passenger, bannedUUIDs)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    @EventHandler
+    public void onVehicleMove(EntityMoveEvent event) {
+        final Location from = event.getFrom();
+        final Location to = event.getTo();
+
+        if ((from.getBlockX() >> 4) == (to.getBlockX() >> 4) && (from.getBlockZ() >> 4) == (to.getBlockZ() >> 4)) return; // Same chunk
+
+        List<Entity> passengers = event.getEntity().getPassengers();
+        if (passengers.isEmpty()) {
+            return;
+        }
+
+        boolean hasPlayer = false;
+        for (Entity passenger : passengers) {
+            if (passenger instanceof Player) {
+                hasPlayer = true;
+                break;
+            }
+        }
+
+        if (!hasPlayer) {
+            return;
+        }
+
+        final Town oldTown = cache.getTownByLocation(from);
+        final Town newTown = cache.getTownByLocation(to);
+
+        if (oldTown == null && newTown != null && isVehicleOrAnyPassengerBanned(null, event.getEntity(), newTown.getBannedUUIDs())) {
+            event.setCancelled(true);
+        }
+    }
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         final Location from = event.getFrom();
         final Location to = event.getTo();
         final Player player = event.getPlayer();
 
-        if (cache.isBypassing(player)) return;
         if ((from.getBlockX() >> 4) == (to.getBlockX() >> 4) && (from.getBlockZ() >> 4) == (to.getBlockZ() >> 4)) return; // Same chunk
 
-        final Town oldTown = cache.getTownByLocation(event.getFrom());
-        final Town newTown = cache.getTownByLocation(event.getTo());
+        final Town oldTown = cache.getTownByLocation(from);
+        final Town newTown = cache.getTownByLocation(to);
 
         if (oldTown == null && newTown == null) return; // Continuing in Wilderness
 
         if (oldTown != null && newTown == null) { // Entering Wilderness
             Messages.get().getNowEnteringWilderness().send(player);
+            if (!oldTown.getToggle(Setting.PVP) && Config.get().isAllowPvpInWilderness()) {
+                Hooks.useHookOrElse(PvPManagerHook.class, hook -> {
+                    if (!hook.isInCombat(player)) {
+                        onExitPvpProtection(player, !hook.hasPvPEnabled(player));
+                    }
+                }, () -> onExitPvpProtection(player, false));
+            } else if (oldTown.getToggle(Setting.PVP) && !Config.get().isAllowPvpInWilderness()) {
+                Hooks.useHookOrElse(PvPManagerHook.class, hook -> {
+                    if (hook.isInCombat(player)) {
+                        return;
+                    }
+
+                    Message message = hook.hasPvPEnabled(player)
+                        ? Messages.get().getNowEnteringPvpProtection()
+                        : Messages.get().getNowEnteringPvpProtectionPvpOff();
+                    message.send(player);
+                }, () -> Messages.get().getNowEnteringPvpProtection().send(player));
+            }
             return;
         }
 
-        if (oldTown == null) { // Entering new Territory
-            if (newTown.getBannedUUIDs().contains(player.getUniqueId())) {
+        if (oldTown != newTown) { // Entering new Territory
+            List<UUID> bannedUUIDs = newTown.getBannedUUIDs();
+            boolean banned = isVehicleOrAnyPassengerBanned(player, player, bannedUUIDs);
+            if (banned) {
+                Entity vehicle = player.getVehicle();
+                if (vehicle != null) {
+                    Location vehicleFrom = from.clone();
+                    vehicleFrom.setY(vehicle.getY());
+                    player.leaveVehicle();
+                    vehicle.teleport(vehicleFrom, TeleportFlag.EntityState.RETAIN_PASSENGERS);
+                }
                 event.setCancelled(true);
-                Messages.get().getPlayer().getBannedWarningTitle().send(player);
                 return;
             }
 
             Messages.get().getNowEnteringTown().send(player, Placeholder.unparsed("town", newTown.getName()));
+            if (oldTown != null && !oldTown.getToggle(Setting.PVP) && newTown.getToggle(Setting.PVP)) {
+                Hooks.useHookOrElse(PvPManagerHook.class, hook -> {
+                    if (!hook.isInCombat(player)) {
+                        onExitPvpProtection(player, !hook.hasPvPEnabled(player));
+                    }
+                }, () -> onExitPvpProtection(player, false));
+            } else if ((oldTown == null || oldTown.getToggle(Setting.PVP)) && !newTown.getToggle(Setting.PVP)) {
+                Hooks.useHookOrElse(PvPManagerHook.class, hook -> {
+                    if (hook.isInCombat(player)) {
+                        return;
+                    }
+
+                    Message message = hook.hasPvPEnabled(player)
+                        ? Messages.get().getNowEnteringPvpProtection()
+                        : Messages.get().getNowEnteringPvpProtectionPvpOff();
+                    message.send(player);
+                }, () -> Messages.get().getNowEnteringPvpProtection().send(player));
+            }
             return;
         }
 
-        if (oldTown.equals(newTown)) { // Same town, new plot
-            Plot plot = newTown.getPlot(event.getTo());
-            if (plot != null) {
-                Messages.get().getTown().getPlot().getEnter().send(
-                    player,
-                    Placeholder.unparsed("plot", plot.getName()),
-                    Placeholder.unparsed("type", plot.getType().name())
-                );
+        // Same town, new chunk
+        if (isVehicleOrAnyPassengerBanned(player, player, newTown.getBannedUUIDs())) {
+            if (Config.get().getTownBanExpel().isEnabled()) {
+                Config.get().getTownBanExpel().expel(player);
+            }
+            event.setCancelled(true);
+            return;
+        }
 
-                // Disable their fly if it is a PVP plot
-                if (plot.getType() == PlotType.ARENA && !(player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR)) {
-                    player.setAllowFlight(false);
-                }
+        // new plot
+        Plot plot = newTown.getPlot(event.getTo());
+        if (plot != null) {
+            Messages.get().getTown().getPlot().getEnter().send(
+                player,
+                Placeholder.unparsed("plot", plot.getName()),
+                Placeholder.unparsed("type", plot.getType().name())
+            );
+
+            // Disable their fly if it is a PVP plot
+            if (plot.getType() == PlotType.ARENA && !(player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR)) {
+                player.setAllowFlight(false);
             }
         }
     }
@@ -963,6 +1091,18 @@ public class NewEventsHandler implements Listener {
 
         // Don't proc in non-whitelisted worlds
         if (Config.get().getBlacklistedWorlds().contains(victim.getWorld().getName())) return;
+
+        // If either player is in grace period, cancel
+        Long attackerGrace = pvpGracePeriod.get(attacker.getUniqueId());
+        if (attackerGrace != null && attackerGrace > System.currentTimeMillis()) {
+            event.setCancelled(true);
+            return;
+        }
+        Long victimGrace = pvpGracePeriod.get(victim.getUniqueId());
+        if (victimGrace != null && victimGrace > System.currentTimeMillis()) {
+            event.setCancelled(true);
+            return;
+        }
 
         ChunkPosition attackerLocation = ChunkPosition.chunkPosition(attacker.getLocation());
         ChunkPosition victimLocation = ChunkPosition.chunkPosition(victim.getLocation());

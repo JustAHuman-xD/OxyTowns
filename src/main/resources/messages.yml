@@ -4,6 +4,22 @@ now-entering-wilderness:
   action-bar: "<gold><bold>Now entering: <red>Wilderness"
 now-entering-town:
   action-bar: "<gold><bold>Now entering: <yellow><town>"
+now-entering-pvp-protection:
+  title:
+    title: "<gold><bold>Entered PVP Protection"
+    sub-title: "<white>You are now in a safe zone."
+now-entering-pvp-protection-pvp-off:
+  title:
+    title: "<gold><bold>Entered PVP Protection"
+    sub-title: "<white>You still have PVP disabled."
+now-leaving-pvp-protection:
+  title:
+    title: "<red><bold>Left PVP Protection"
+    sub-title: "<white>You will be vulnerable in <grace_period> seconds."
+now-leaving-pvp-protection-pvp-off:
+  title:
+    title: "<red><bold>Left PVP Protection"
+    sub-title: "<white>You still have PVP disabled."
 bypass-on: "<gold>You have toggled town bypass <green>on<gold>."
 bypass-off: "<gold>You have toggled town bypass <red>off<gold>."
 town:
@@ -223,7 +239,7 @@ player:
   banned-warning-title:
     title:
       title: "<dark_red>(<red>!<dark_red>) <red>Banned <dark_red>(<red>!<dark_red>)"
-      sub-title: "<red>You're banned from that town."
+      sub-title: "<red>You or a passenger banned from that town."
   unban-message: "<gold>You've been unbanned from <yellow><town><gold>."
   cant-do-that-command-in-this-plot-type: "<red>You can't do that command in this <type> plots."
   you-were-trusted: "<gold>You were trusted in <yellow><town><gold>."

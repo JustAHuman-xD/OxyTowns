@@ -6,8 +6,12 @@ import com.oxywire.oxytowns.entities.types.PlotType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
@@ -34,9 +38,6 @@ public final class Config {
     private int maxClaimRadius = 1;
 
     @Setting
-    private String banConsoleCommand = "spawn <player>";
-
-    @Setting
     private Map<PlotType, Plot> plots = Map.of(
         PlotType.FARM, new Plot(EnumSet.of(Material.CARROTS, Material.POTATOES, Material.WHEAT), EnumSet.noneOf(EntityType.class), Set.of()),
         PlotType.MOB_FARM, new Plot(EnumSet.noneOf(Material.class), EnumSet.of(EntityType.COW, EntityType.PIG, EntityType.SHEEP, EntityType.CHICKEN), Set.of()),
@@ -55,6 +56,12 @@ public final class Config {
     private boolean allowPvpInWilderness = false;
 
     @Setting
+    private boolean pvpStatusEnterExitMessages = true;
+
+    @Setting
+    private int leaveNoPvpGracePeriod = 30;
+
+    @Setting
     private List<String> blacklistedWorlds = List.of(
         "resource_world"
     );
@@ -69,7 +76,13 @@ public final class Config {
     private TownVaults townVaults = new TownVaults();
 
     @Setting
+    private TownBanExpel townBanExpel = new TownBanExpel();
+
+    @Setting
     private TownChat townChat = new TownChat();
+
+    @Setting
+    private Hooks hooks = new Hooks();
 
     public static Config get() {
         return OxyTownsPlugin.configManager.get(Config.class);
@@ -143,6 +156,82 @@ public final class Config {
     }
 
     @Getter
+    @ConfigSerializable
+    public static final class TownBanExpel {
+
+        @Setting
+        private boolean enabled = true;
+
+        @Setting
+        private Mode mode = Mode.RESPAWN_POINT;
+
+        @Setting
+        private String command = "spawn <player>";
+
+        @Setting
+        private Custom custom = new Custom();
+
+        public void expel(Player target) {
+            switch (mode) {
+                case WORLD_SPAWN -> target.teleportAsync(target.getWorld().getSpawnLocation());
+                case RESPAWN_POINT -> {
+                    Location respawnLocation = target.getRespawnLocation();
+                    target.teleportAsync(respawnLocation != null ? respawnLocation : target.getWorld().getSpawnLocation());
+                }
+                case COMMAND -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("<player>", target.getName()));
+                case CUSTOM -> {
+                    World world = Bukkit.getWorld(custom.getWorld());
+                    if (world == null) {
+                        OxyTownsPlugin.get().getSLF4JLogger().warn("Could not expel player {} to custom location: world '{}' not found, teleporting to player world spawn instead.", target.getName(), custom.getWorld());
+                        target.teleportAsync(target.getWorld().getSpawnLocation());
+                        return;
+                    }
+
+                    Location location = new Location(
+                        world,
+                        custom.getX(),
+                        custom.getY(),
+                        custom.getZ(),
+                        custom.getYaw(),
+                        custom.getPitch()
+                    );
+                    target.teleportAsync(location);
+                }
+            }
+        }
+
+        @Getter
+        @ConfigSerializable
+        public static final class Custom {
+            @Setting
+            private String world;
+
+            @Setting
+            private double x;
+
+            @Setting
+            private double y;
+
+            @Setting
+            private double z;
+
+            @Setting
+            private float yaw;
+
+            @Setting
+            private float pitch;
+        }
+
+        public enum Mode {
+            WORLD_SPAWN,
+            RESPAWN_POINT,
+            COMMAND,
+            CUSTOM
+        }
+
+    }
+
+    @Getter
     @AllArgsConstructor
     @NoArgsConstructor
     @ConfigSerializable
@@ -152,5 +241,44 @@ public final class Config {
 
         @Setting
         private Map<Integer, Double> upgrade;
+    }
+
+    @Getter
+    @ConfigSerializable
+    public static final class Hooks {
+
+        @Setting
+        private boolean bstats = true;
+
+        @Setting
+        private boolean placeholderApi = true;
+
+        @Setting
+        private Squaremap squaremap = new Squaremap();
+
+        @Setting
+        private PvPManager pvpManager = new PvPManager();
+
+        @Getter
+        @ConfigSerializable
+        public static final class Squaremap {
+
+            @Setting
+            private boolean enabled = true;
+
+            @Setting
+            private int updateInterval = 30;
+
+        }
+
+        @Getter
+        @ConfigSerializable
+        public static final class PvPManager {
+
+            @Setting
+            private boolean enabled = true;
+
+        }
+
     }
 }
