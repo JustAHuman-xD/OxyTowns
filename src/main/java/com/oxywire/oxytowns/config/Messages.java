@@ -27,6 +27,26 @@ public final class Messages {
     private Message nowEnteringTown = new Message().setActionBar("<gold><bold>Now entering: <yellow><town>");
 
     @Setting
+    private Message nowEnteringPvpProtection = new Message().setTitle(new Title()
+        .setTitle("<gold><bold>Entered PVP Protection")
+        .setSubTitle("<white>You are now in a safe zone."));
+
+    @Setting
+    private Message nowEnteringPvpProtectionPvpOff = new Message().setTitle(new Title()
+        .setTitle("<gold><bold>Entered PVP Protection")
+        .setSubTitle("<white>You still have PVP disabled."));
+
+    @Setting
+    private Message nowLeavingPvpProtection = new Message().setTitle(new Title()
+        .setTitle("<red><bold>Left PVP Protection")
+        .setSubTitle("<white>You will be vulnerable in <grace_period> seconds."));
+
+    @Setting
+    private Message nowLeavingPvpProtectionPvpOff = new Message().setTitle(new Title()
+        .setTitle("<red><bold>Leaving PVP Protection")
+        .setSubTitle("<white>You still have PVP disabled."));
+
+    @Setting
     private Message bypassOn = new Message()
         .setMessage("<gold><b>Info</b> <dark_gray>» <gray>You have toggled <yellow>Bypass <green>on<gray>.");
 
