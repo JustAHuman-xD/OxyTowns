@@ -6,7 +6,6 @@ import cloud.commandframework.services.types.ConsumerService;
 import com.oxywire.oxytowns.hooks.impl.BStatsHook;
 import com.oxywire.oxytowns.hooks.impl.PlaceholderApiHook;
 import com.oxywire.oxytowns.hooks.impl.SquareMapHook;
-import com.oxywire.oxytowns.hooks.impl.SquareMapUpdater;
 import com.oxywire.oxytowns.api.OxyTownsApi;
 import com.oxywire.oxytowns.cache.TownCache;
 import com.oxywire.oxytowns.command.CommandManager;
@@ -61,6 +60,18 @@ public class OxyTownsPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        instance = this;
+
+        try {
+            configManager = new ConfigManager(getDataFolder().toPath());
+            configManager.get(Messages.class);
+            configManager.get(Config.class);
+            configManager.get(Menus.class);
+            configManager.get(UpkeepTimes.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         Config.Hooks hooksConfig = Config.get().getHooks();
         if (hooksConfig.isBstats()) {
             Hooks.registerHook(new BStatsHook());
@@ -78,20 +89,7 @@ public class OxyTownsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        final long start = System.currentTimeMillis();
-
-        instance = this;
         Menu.INVENTORY_MANAGER.init();
-
-        try {
-            configManager = new ConfigManager(getDataFolder().toPath());
-            configManager.get(Messages.class);
-            configManager.get(Config.class);
-            configManager.get(Menus.class);
-            configManager.get(UpkeepTimes.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
         this.townCache = new TownCache(this);
 
