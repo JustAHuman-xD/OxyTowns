@@ -64,6 +64,10 @@ public final class BanCommand {
 
         messages.getTown().getBan().getBroadcastBan().send(town, Placeholder.unparsed("player", offlinePlayer.getName()));
         if (!offlinePlayer.isOnline()) {
+            OxyTownsPlugin.notificationStorageManager.queueNotification(offlinePlayer.getUniqueId(), "town-banned", messages.getNotifications().getTownBanned().message(
+                Placeholder.unparsed("town", town.getName()),
+                Placeholder.unparsed("player", sender.getName())
+            ));
             return;
         }
 

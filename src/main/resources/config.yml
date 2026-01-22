@@ -293,3 +293,10 @@ town-chat:
   format: "<green>[Town] <white><sender>: <gray><message>"
   # This is the format for any players using /townchatspy (e.g. staff)
   spy-format: "<red>[TownSpy] <white><town>@<sender>: <gray><message>"
+
+# We support queuing notifications for offline players when important town events occur.
+notifications:
+  # Whether offline notifications are enabled.
+  enabled: true
+  # The delay (in seconds) after a player joins before they receive their queued notifications.
+  delay-after-join: 15

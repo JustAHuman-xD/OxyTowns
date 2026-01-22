@@ -37,17 +37,32 @@ public class Message {
     @Setting
     private Particle particle;
 
+    public Component message(final TagResolver... placeholders) {
+        return this.message(Map.of(), placeholders);
+    }
+
+    public Component message(final Map<String, String> replacements, final TagResolver... placeholders) {
+        if (this.message == null) {
+            return null;
+        }
+        String formatted = this.message;
+        for (Map.Entry<String, String> entry : replacements.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            formatted = formatted.replace(key, value);
+        }
+        return MINI_MESSAGE.deserialize(formatted, placeholders);
+    }
+
     public CompletableFuture<Void> send(final Audience audience, final TagResolver... placeholders) {
         return this.send(audience, Map.of(), placeholders);
     }
 
     public CompletableFuture<Void> send(final Audience audience, final Map<String, String> replacements, final TagResolver... placeholders) {
         return CompletableFuture.runAsync(() -> {
+            // TODO: investigate why action bar, title, etc, don't support replacements
             if (this.message != null) {
-                // TODO: Make this nicer (fucking awful)
-                final String[] msg = {this.message};
-                replacements.forEach((key, value) -> msg[0] = msg[0].replace(key, value));
-                audience.sendMessage(MINI_MESSAGE.deserialize(msg[0], placeholders));
+                audience.sendMessage(message(replacements, placeholders));
             }
             if (this.actionBar != null) {
                 audience.sendActionBar(MINI_MESSAGE.deserialize(this.actionBar, placeholders));

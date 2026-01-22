@@ -57,6 +57,8 @@ public final class TaxSchedule {
                 }
 
                 if (taxToTake <= town.getBankValue()) {
+                    town.notifyOfflineMembers("town-outposts-unclaimed", messages.getNotifications().getTownOutpostsUnclaimed(),
+                        Placeholder.unparsed("town", town.getName()));
                     messages.getTax().getTownOutpostsUnclaimed().send(Bukkit.getServer(), Placeholder.unparsed("town", town.getName()));
                 }
             }
@@ -66,9 +68,11 @@ public final class TaxSchedule {
                     town.getOutpostAndClaimedChunks().forEach(chunk -> town.unclaimChunk(chunk, null));
                     town.setBankValue(0);
                     town.setMissedLastUpkeep(true);
+                    town.notifyOfflineMembers("town-unclaimed", messages.getNotifications().getTownUnclaimed(), Placeholder.unparsed("town", town.getName()));
                     messages.getTax().getTownUnclaimed().send(Bukkit.getServer(), Placeholder.unparsed("town", town.getName()));
                 } else {
                     toDelete.add(town);
+                    town.notifyOfflineMembers("town-disbanded", messages.getNotifications().getTownDisbanded(), Placeholder.unparsed("town", town.getName()));
                     messages.getTax().getTownDisbanded().send(Bukkit.getServer(), Placeholder.unparsed("town", town.getName()));
                 }
                 continue;

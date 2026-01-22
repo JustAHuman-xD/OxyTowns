@@ -74,6 +74,9 @@ public final class Config {
     @Setting
     private TownChat townChat = new TownChat();
 
+    @Setting
+    private Notifications notifications = new Notifications();
+
     public static Config get() {
         return OxyTownsPlugin.configManager.get(Config.class);
     }
@@ -174,4 +177,17 @@ public final class Config {
         @Setting
         private Map<Integer, Double> upgrade;
     }
+
+    @Getter
+    @ConfigSerializable
+    public static final class Notifications {
+
+        @Setting
+        private boolean enabled = true;
+
+        @Setting
+        private int delayAfterJoin = 15;
+
+    }
+
 }

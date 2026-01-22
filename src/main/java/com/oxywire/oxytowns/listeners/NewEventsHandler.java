@@ -15,6 +15,7 @@ import com.oxywire.oxytowns.entities.types.perms.Permission;
 import com.oxywire.oxytowns.entities.types.settings.Setting;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -82,6 +83,7 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerTakeLecternBookEvent;
@@ -98,6 +100,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiPredicate;
 
 @SuppressWarnings("unused")
@@ -128,6 +131,21 @@ public class NewEventsHandler implements Listener {
         INTERACT_SETS.remove(Material.FLOWER_POT); // ?
         INTERACT_SETS.addAll(Tag.LOGS.getValues());
         INTERACT_SETS.add(Material.DRAGON_EGG);
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Config.Notifications config = Config.get().getNotifications();
+        if (!config.isEnabled()) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        Bukkit.getAsyncScheduler().runDelayed(OxyTownsPlugin.get(), task -> {
+            if (player.isOnline()) {
+                OxyTownsPlugin.notificationStorageManager.sendAndConsumeNotificationsFor(player);
+            }
+        }, config.getDelayAfterJoin(), TimeUnit.SECONDS);
     }
 
     @EventHandler

@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
+import com.oxywire.oxytowns.config.messaging.Message;
 import com.oxywire.oxytowns.entities.impl.BanEntry;
 import com.oxywire.oxytowns.entities.impl.TrustedEntry;
 import com.oxywire.oxytowns.entities.impl.plot.Plot;
@@ -31,6 +32,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -452,6 +454,19 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
             return true;
         }
         return false;
+    }
+
+    public void notifyOfflineMembers(String type, Message notification, TagResolver... placeholders) {
+        Component component = notification.message(placeholders);
+        if (component == null) {
+            return;
+        }
+
+        for (UUID playerId : getOwnerAndMembers()) {
+            if (Bukkit.getPlayer(playerId) == null) {
+                OxyTownsPlugin.notificationStorageManager.queueNotification(playerId, type, component);
+            }
+        }
     }
 
     /**

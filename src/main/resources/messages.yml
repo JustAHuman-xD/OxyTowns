@@ -289,12 +289,21 @@ tax:
     <gray>
     <dark_red>(<red>!<dark_red>) <red>A new day is here! Taxes and rent have been collected <dark_red>(<red>!<dark_red>)
     <gray>
+  town-outposts-unclaimed: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and had some outposts repossessed to make up for it."
   town-unclaimed: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and was unclaimed. (If they miss it again it will be disbanded)"
   town-disbanded: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and was disbanded."
   collection-warning: |
     <gray>
     <dark_red>(<red>!<dark_red>) <red>Town taxes will be collected in <yellow><time> <red>minutes <dark_red>(<red>!<dark_red>)
     <gray>
+notifications:
+  town-renamed: "<red>While you were offline, your town <yellow><old-name> <red>was renamed to <yellow><new-name><red>."
+  town-outposts-unclaimed: "<red>While you were offline, your town <yellow><town> <red>had some outposts unclaimed due to lack of upkeep."
+  town-unclaimed: "<red>While you were offline, your town <yellow><town> <red>was unclaimed due to lack of upkeep."
+  town-disbanded: "<red>While you were offline, your town <yellow><town> <red>was disbanded due to lack of upkeep."
+  town-kicked: "<red>While you were offline, you were kicked from the town <yellow><town><red>."
+  town-banned: "<red>While you were offline, you were banned from the town <yellow><town><red>."
+  town-role-changed: "<red>While you were offline, your role in the town <yellow><town> <red>was changed to <yellow><role><red>."
 command-feedback:
   argument-parse: "<red>This is an invalid command argument."
   command-execution: "<red>An internal error occurred while attempting to perform this command."

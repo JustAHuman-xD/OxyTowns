@@ -47,6 +47,9 @@ public final class Messages {
     private Tax tax = new Tax();
 
     @Setting
+    private Notifications notifications = new Notifications();
+
+    @Setting
     private CommandFeedback commandFeedback = new CommandFeedback();
 
     public static Messages get() {
@@ -827,6 +830,40 @@ public final class Messages {
             @Setting
             private Message disabled = new Message().setMessage("<gold>You have disabled town chat spying.");
         }
+    }
+
+    @Getter
+    @ConfigSerializable
+    public static final class Notifications {
+
+        @Setting
+        private Message townRenamed = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><old-name> <red>was renamed to <yellow><new-name><red>.");
+
+        @Setting
+        private Message townOutpostsUnclaimed = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><town> <red>couldn't afford to pay taxes and had some outposts repossessed to make up for it.");
+
+        @Setting
+        private Message townUnclaimed = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><town> <red>couldn't afford to pay taxes and was unclaimed. (If they miss it again it will be disbanded)");
+
+        @Setting
+        private Message townDisbanded = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><town> <red>couldn't afford to pay taxes and was disbanded.");
+
+        @Setting
+        private Message townKicked = new Message().setMessage(
+            "<red>While you were offline, you were kicked from the town <yellow><town><red>.");
+
+        @Setting
+        private Message townBanned = new Message().setMessage(
+            "<red>While you were offline, you were banned from the town <yellow><town><red>.");
+
+        @Setting
+        private Message townRoleChanged = new Message().setMessage(
+            "<red>While you were offline, your role in the town <yellow><town> <red>was changed to <yellow><role><red>.");
+
     }
 
     @Getter
