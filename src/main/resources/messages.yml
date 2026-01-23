@@ -5,21 +5,21 @@ now-entering-wilderness:
 now-entering-town:
   action-bar: "<gold><bold>Now entering: <yellow><town>"
 now-entering-pvp-protection:
-  title:
-    title: "<gold><bold>Entered PVP Protection"
-    sub-title: "<white>You are now in a safe zone."
+  boss-bar:
+    title: "<gold><bold>Entered PVP Protection <gray>- <white>You are now in a safe zone."
+    color: GREEN
 now-entering-pvp-protection-pvp-off:
-  title:
-    title: "<gold><bold>Entered PVP Protection"
-    sub-title: "<white>You still have PVP disabled."
+  boss-bar:
+    title: "<gold><bold>Entered PVP Protection <gray>- <white>You still have PVP disabled."
+    color: GREEN
 now-leaving-pvp-protection:
-  title:
-    title: "<red><bold>Left PVP Protection"
-    sub-title: "<white>You will be vulnerable in <grace_period> seconds."
+  boss-bar:
+    title: "<red><bold>Left PVP Protection <gray>- <white>You will be vulnerable in <grace_period> seconds."
+    color: RED
 now-leaving-pvp-protection-pvp-off:
-  title:
-    title: "<red><bold>Left PVP Protection"
-    sub-title: "<white>You still have PVP disabled."
+  boss-bar:
+    title: "<red><bold>Left PVP Protection <gray>- <white>You still have PVP disabled."
+    color: RED
 bypass-on: "<gold>You have toggled town bypass <green>on<gold>."
 bypass-off: "<gold>You have toggled town bypass <red>off<gold>."
 town:
