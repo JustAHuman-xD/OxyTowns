@@ -4,10 +4,15 @@ import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import com.oxywire.oxytowns.OxyTownsPlugin;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
+import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -23,6 +28,8 @@ import org.spongepowered.configurate.objectmapping.meta.Setting;
 @ConfigSerializable
 public class Message {
 
+    private static final Map<UUID, Map<String, TemporaryBossBar>> activeBossBars = new ConcurrentHashMap<>();
+
     public static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     public static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacySection();
 
@@ -36,6 +43,8 @@ public class Message {
     private Sound sound;
     @Setting
     private Particle particle;
+    @Setting
+    private BossBar bossBar;
 
     public CompletableFuture<Void> send(final Audience audience, final TagResolver... placeholders) {
         return this.send(audience, Map.of(), placeholders);
@@ -70,6 +79,36 @@ public class Message {
                     this.particle.getOffsetZ()
                 );
             }
+
+            if (this.bossBar != null) {
+                if (this.bossBar.getId() == null || !(audience instanceof Player player)) {
+                    net.kyori.adventure.bossbar.BossBar bossBar = this.bossBar.asBossBar(placeholders);
+                    audience.showBossBar(bossBar);
+                    Bukkit.getAsyncScheduler().runDelayed(OxyTownsPlugin.get(), task -> audience.hideBossBar(bossBar),
+                        this.bossBar.getStay() == null ? 3500 : this.bossBar.getStay().toMillis(), TimeUnit.MILLISECONDS);
+                    return;
+                }
+
+                String key = this.bossBar.getId();
+                Map<String, TemporaryBossBar> userBossBars = activeBossBars.computeIfAbsent(player.getUniqueId(), $ -> new ConcurrentHashMap<>());
+                userBossBars.compute(key, ($, temporaryBossBar) -> {
+                    net.kyori.adventure.bossbar.BossBar bossBar;
+                    if (temporaryBossBar != null) {
+                        bossBar = temporaryBossBar.getBossBar();
+                        temporaryBossBar.getTask().cancel();
+                        this.bossBar.apply(bossBar, placeholders);
+                    } else {
+                        bossBar = this.bossBar.asBossBar(placeholders);
+                        temporaryBossBar = new TemporaryBossBar(bossBar, null);
+                        audience.showBossBar(bossBar);
+                    }
+                    temporaryBossBar.setTask(Bukkit.getAsyncScheduler().runDelayed(OxyTownsPlugin.get(), task -> {
+                        audience.hideBossBar(bossBar);
+                        userBossBars.remove(key);
+                    }, this.bossBar.getStay() == null ? 3500 : this.bossBar.getStay().toMillis(), TimeUnit.MILLISECONDS));
+                    return temporaryBossBar;
+                });
+            }
         });
     }
 
@@ -95,6 +134,11 @@ public class Message {
 
     public Message setParticle(final Particle particle) {
         this.particle = particle;
+        return this;
+    }
+
+    public Message setBossBar(final BossBar bossBar) {
+        this.bossBar = bossBar;
         return this;
     }
 
@@ -235,6 +279,69 @@ public class Message {
         }
     }
 
+    @Getter
+    @ConfigSerializable
+    public static class BossBar {
+
+        @Setting
+        private String id;
+        @Setting
+        private String title;
+        @Setting
+        private net.kyori.adventure.bossbar.BossBar.Color color;
+        @Setting
+        private net.kyori.adventure.bossbar.BossBar.Overlay overlay;
+        @Setting
+        private Float progress;
+        @Setting
+        private Duration stay;
+
+        public void apply(net.kyori.adventure.bossbar.BossBar bossBar, final TagResolver... placeholders) {
+            bossBar.name(this.title == null ? Component.empty() : MINI_MESSAGE.deserialize(this.title, placeholders));
+            bossBar.color(this.color == null ? net.kyori.adventure.bossbar.BossBar.Color.WHITE : this.color);
+            bossBar.overlay(this.overlay == null ? net.kyori.adventure.bossbar.BossBar.Overlay.PROGRESS : this.overlay);
+            bossBar.progress(this.progress == null ? 1.0f : this.progress);
+        }
+
+        public net.kyori.adventure.bossbar.BossBar asBossBar(final TagResolver... placeholders) {
+            Component title = this.title == null ? Component.empty() : MINI_MESSAGE.deserialize(this.title, placeholders);
+            net.kyori.adventure.bossbar.BossBar.Color color = this.color == null ? net.kyori.adventure.bossbar.BossBar.Color.WHITE : this.color;
+            net.kyori.adventure.bossbar.BossBar.Overlay overlay = this.overlay == null ? net.kyori.adventure.bossbar.BossBar.Overlay.PROGRESS : this.overlay;
+            return net.kyori.adventure.bossbar.BossBar.bossBar(title, progress == null ? 1.0f : progress, color, overlay);
+        }
+
+        public BossBar setId(final String id) {
+            this.id = id;
+            return this;
+        }
+
+        public BossBar setTitle(final String title) {
+            this.title = title;
+            return this;
+        }
+
+        public BossBar setColor(final net.kyori.adventure.bossbar.BossBar.Color color) {
+            this.color = color;
+            return this;
+        }
+
+        public BossBar setOverlay(final net.kyori.adventure.bossbar.BossBar.Overlay overlay) {
+            this.overlay = overlay;
+            return this;
+        }
+
+        public BossBar setProgress(final float progress) {
+            this.progress = progress;
+            return this;
+        }
+
+        public BossBar setStay(final Duration stay) {
+            this.stay = stay;
+            return this;
+        }
+
+    }
+
     public static String formatEnum(final Enum<?> receiver) {
         final String[] split = receiver.name().toLowerCase().split("_");
         final StringBuilder builder = new StringBuilder();
@@ -253,6 +360,17 @@ public class Message {
 
     public static String formatNumber(Number number) {
         return FORMAT.format(number);
+    }
+
+    @Getter
+    public static final class TemporaryBossBar {
+        private final net.kyori.adventure.bossbar.BossBar bossBar;
+        @Setter private ScheduledTask task;
+
+        public TemporaryBossBar(net.kyori.adventure.bossbar.BossBar bossBar, ScheduledTask task) {
+            this.bossBar = bossBar;
+            this.task = task;
+        }
     }
 }
 
