@@ -95,7 +95,7 @@ public class Message {
                 );
             }
 
-            if (this.bossBar != null) {
+            if (this.bossBar != null && !this.bossBar.isEmpty()) {
                 if (this.bossBar.getId() == null || !(audience instanceof Player player)) {
                     net.kyori.adventure.bossbar.BossBar bossBar = this.bossBar.asBossBar(placeholders);
                     audience.showBossBar(bossBar);
@@ -353,6 +353,10 @@ public class Message {
         public BossBar setStay(final Duration stay) {
             this.stay = stay;
             return this;
+        }
+
+        public boolean isEmpty() {
+            return this.id == null && this.title == null && this.color == null && this.overlay == null && this.progress == null;
         }
 
     }
