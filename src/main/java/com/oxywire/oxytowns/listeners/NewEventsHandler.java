@@ -20,6 +20,7 @@ import io.papermc.paper.entity.TeleportFlag;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -87,6 +88,7 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
@@ -105,6 +107,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 
@@ -139,6 +143,21 @@ public class NewEventsHandler implements Listener {
     }
 
     private final Map<UUID, Long> pvpGracePeriod = new ConcurrentHashMap<>();
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Config.Notifications config = Config.get().getNotifications();
+        if (!config.isEnabled()) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        Bukkit.getAsyncScheduler().runDelayed(OxyTownsPlugin.get(), task -> {
+            if (player.isOnline()) {
+                OxyTownsPlugin.notificationStorageManager.sendAndConsumeNotificationsFor(player);
+            }
+        }, config.getDelayAfterJoin(), TimeUnit.SECONDS);
+    }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {

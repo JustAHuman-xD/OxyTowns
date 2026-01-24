@@ -175,17 +175,20 @@ town:
       <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town unclaim confirm><green><bold>[Confirm]</click>
       <gray>                 <gold><st>                                             <reset>
     chunk-linked-outpost: "<red>You can not unclaim this chunk because it is linked to an outpost."
-    unclaim-confirm: |
+    confirm-outpost-unclaim: |
       <gray>
       <gray>              <gold><st>               </st><gold><bold> Town Unclaim <gold><st>               <reset>
       <gray>
       <red>    You are about to unclaim a town outpost. Are you sure?
+      <red>         Your town will be refunded <yellow>$<refund>
       <gray>
       <gray><italic>                          Please make a choice.
       <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town unclaim confirm><green><bold>[Confirm]</click>
       <gray>                 <gold><st>
+    outpost-unclaim-success: "<red><b>Warning</b> <dark_gray>» <gray>Outpost unclaimed. Your town has been refunded <yellow>$<refund><gray>.");
   bank:
     error-not-within-town: "<red>You must be within your town to access the town bank."
+    error-must-claim-first: "<red>Your town must claim land before withdrawing from the town bank or making excess deposits."
     error-cannot-afford: "<red>Your town can't afford this."
     error-withdraw-not-allowed: "<red>You are not allowed to withdraw money from your town bank."
     error-deposit-past-max: "<red>That deposit would exceed the town bank's capacity by $<excess>."
@@ -246,6 +249,15 @@ player:
   you-were-untrusted: "<gold>You were untrusted in <yellow><town><gold>."
   you-are-now-the-mayor: "<gold>You are now the mayor of <yellow><town><gold>."
 admin:
+  upkeep-confirm: |
+    <gray>
+    <gray>              <gold><st>               </st><gold><bold> Trigger Town Upkeep <gold><st>               <reset>
+    <gray>
+    <yellow>         You are about to trigger town upkeep for <yellow><town><gray>.
+    <gray>
+    <gray><italic>                          Please make a choice.
+    <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/ta upkeep confirm><green><bold>[Confirm]</click>
+    <gray>                 <gold><st>                                             <reset>
   town:
     player-in-town: "<red>That player is already in a town."
     player-not-in-town: "<red>That player is not in a town."
@@ -293,11 +305,21 @@ tax:
     <gray>
     <dark_red>(<red>!<dark_red>) <red>A new day is here! Taxes and rent have been collected <dark_red>(<red>!<dark_red>)
     <gray>
-  town-disbanded: "<red>The town of <yellow><town> <red>couldn''t afford to pay taxes."
+  town-outposts-unclaimed: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and had some outposts repossessed to make up for it."
+  town-unclaimed: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and was unclaimed. (If they miss it again it will be disbanded)"
+  town-disbanded: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and was disbanded."
   collection-warning: |
     <gray>
     <dark_red>(<red>!<dark_red>) <red>Town taxes will be collected in <yellow><time> <red>minutes <dark_red>(<red>!<dark_red>)
     <gray>
+notifications:
+  town-renamed: "<red>While you were offline, your town <yellow><old-name> <red>was renamed to <yellow><new-name><red>."
+  town-outposts-unclaimed: "<red>While you were offline, your town <yellow><town> <red>had some outposts unclaimed due to lack of upkeep."
+  town-unclaimed: "<red>While you were offline, your town <yellow><town> <red>was unclaimed due to lack of upkeep."
+  town-disbanded: "<red>While you were offline, your town <yellow><town> <red>was disbanded due to lack of upkeep."
+  town-kicked: "<red>While you were offline, you were kicked from the town <yellow><town><red>."
+  town-banned: "<red>While you were offline, you were banned from the town <yellow><town><red>."
+  town-role-changed: "<red>While you were offline, your role in the town <yellow><town> <red>was changed to <yellow><role><red>."
 command-feedback:
   argument-parse: "<red>This is an invalid command argument."
   command-execution: "<red>An internal error occurred while attempting to perform this command."

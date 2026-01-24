@@ -4,6 +4,9 @@ claim-price: 150.0
 # This is how much it costs for a town to claim an outpost.
 outpost-price: 50000.0
 
+# This is how much is refunded to a town when unclaiming an outpost (set to 0 to disable).
+outpost-refund: 10000.0
+
 # This is the max chunk radius players can claim using /t claim <radius>.
 # Setting this to 3 means that a 7x7 (total of 49 chunks) can be claimed at once.
 max-claim-radius: 3
@@ -270,6 +273,14 @@ blacklisted-worlds:
 upkeep:
   # Whether upkeep is enabled.
   enabled: true
+  # Leniency allows towns to miss an upkeep payment (or multiple depending on configuration) before the town is fully disbanded.
+  leniency:
+    # Whether leniency is enabled. If enabled, instead of being fully disbanded when missing upkeep, the town will have all claims destroyed, but will remain. If the town misses another payment after that, it will be disbanded.
+    enabled: true
+    # If towns should automatically sell outposts to try and cover the cost of upkeep if they can't afford it.
+    sell-outposts: true
+  # should a backup of the town be created under towns_backups/upkeep_disband/ before being disbanded from missing upkeep.
+  backup-before-disband: true
   # This is the amount that the server will collect for every claimed chunk a town has.
   town-value: 25.0
   # The settings below define what time upkeep will be collected.
@@ -300,6 +311,13 @@ town-chat:
   format: "<green>[Town] <white><sender>: <gray><message>"
   # This is the format for any players using /townchatspy (e.g. staff)
   spy-format: "<red>[TownSpy] <white><town>@<sender>: <gray><message>"
+
+# We support queuing notifications for offline players when important town events occur.
+notifications:
+  # Whether offline notifications are enabled.
+  enabled: true
+  # The delay (in seconds) after a player joins before they receive their queued notifications.
+  delay-after-join: 15
 
 hooks:
   # Whether the bStats integration is enabled.

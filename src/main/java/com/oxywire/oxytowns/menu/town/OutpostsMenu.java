@@ -33,6 +33,10 @@ public final class OutpostsMenu extends PagedMenu {
         final Map<String, MenuElement> elements = getConfig().getElements();
 
         Menu.set(contents, elements.get("go-home"), e -> TownMainMenu.open(player, this.town));
+        Menu.set(contents, elements.get("claim-outpost"), e -> {
+            player.closeInventory();
+            player.performCommand("town outpost claim");
+        }, Formatter.number("price", com.oxywire.oxytowns.config.Config.get().getOutpostPrice()));
 
         return this.town.getOutpostChunks().stream()
             .map(chunk -> elements.get("outpost").getElement(

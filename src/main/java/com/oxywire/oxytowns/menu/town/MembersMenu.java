@@ -1,5 +1,6 @@
 package com.oxywire.oxytowns.menu.town;
 
+import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.config.messaging.Message;
 import com.oxywire.oxytowns.entities.impl.town.Town;
@@ -19,7 +20,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +33,13 @@ public final class MembersMenu extends PagedMenu {
     private static final Map<UUID, String> NAME_CACHE = new HashMap<>();
 
     private final Town town;
+
+    private static String getName(UUID uuid) {
+        return NAME_CACHE.computeIfAbsent(uuid, k -> {
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(k);
+            return offlinePlayer.getName() != null ? offlinePlayer.getName() : k + " (name not cached)";
+        });
+    }
 
     public static void open(final Player player, final Town town) {
         Menu.builder(new MembersMenu(town))
@@ -51,10 +58,7 @@ public final class MembersMenu extends PagedMenu {
         return this.town.getOwnerAndMembersWithRoles().entrySet().stream()
             .sorted((a, b) -> PlayerIsOnlineComparator.INSTANCE.compare(a.getKey(), b.getKey()))
             .map(member -> {
-                final String name = NAME_CACHE.computeIfAbsent(member.getKey(), k -> {
-                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(k);
-                    return offlinePlayer.getName() != null ? offlinePlayer.getName() : k + " (name not cached)";
-                });
+                final String name = getName(member.getKey());
                 final ItemStack item = elements.get("member").getItem(
                     Placeholder.unparsed("name", Objects.requireNonNullElse(name, member.getKey().toString() + " (name not cached)")),
                     Placeholder.unparsed("role", Message.formatEnum(member.getValue())),
@@ -69,15 +73,14 @@ public final class MembersMenu extends PagedMenu {
                         player,
                         this.town,
                         member.getKey(),
-                        e.isLeftClick(),
-                        e.isLeftClick() ? Messages.get().getTown().getBroadcastDemotion() : Messages.get().getTown().getBroadcastPromotion()
+                        e.isLeftClick()
                     )
                 );
             })
             .toArray(ClickableItem[]::new);
     }
 
-    private static void role(final Player player, final Town town, final UUID target, final boolean promote, final Message message) {
+    private static void role(final Player player, final Town town, final UUID target, final boolean promote) {
         if (!town.getOwner().equals(player.getUniqueId())) {
             return;
         }
@@ -92,10 +95,20 @@ public final class MembersMenu extends PagedMenu {
         }
 
         open(player, town);
+
+        Messages messages = Messages.get();
+        Message message = promote ? messages.getTown().getBroadcastPromotion() : messages.getTown().getBroadcastDemotion();
         message.send(
             town,
-            Placeholder.unparsed("player", Bukkit.getOfflinePlayer(target).getName()),
+            Placeholder.unparsed("player", getName(target)),
             Placeholder.unparsed("role", Message.formatEnum(role))
         );
+
+        if (Bukkit.getPlayer(target) == null) {
+            OxyTownsPlugin.notificationStorageManager.queueNotification(target, "town-role-changed", messages.getNotifications().getTownKicked().message(
+                Placeholder.unparsed("town", town.getName()),
+                Placeholder.unparsed("role", Message.formatEnum(role))
+            ));
+        }
     }
 }

@@ -29,6 +29,7 @@ import com.oxywire.oxytowns.listeners.NewEventsHandler;
 import com.oxywire.oxytowns.menu.Menu;
 import com.oxywire.oxytowns.runnable.MobsRunnable;
 import com.oxywire.oxytowns.runnable.TaxSchedule;
+import com.oxywire.oxytowns.storage.NotificationStorageManager;
 import lombok.Getter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -52,6 +53,7 @@ public class OxyTownsPlugin extends JavaPlugin {
 
     private static OxyTownsPlugin instance;
     public static ConfigManager configManager;
+    public static NotificationStorageManager notificationStorageManager;
 
     private TownCache townCache;
     private Economy economy;
@@ -61,6 +63,7 @@ public class OxyTownsPlugin extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
+        notificationStorageManager = new NotificationStorageManager(this);
 
         try {
             configManager = new ConfigManager(getDataFolder().toPath());

@@ -228,4 +228,8 @@ public final class TownCache {
     public Map<ChunkPosition, Town> getTownsMap() {
         return townsMap;
     }
+
+    public TownStorageManager getTownDao() {
+        return townDao;
+    }
 }
