@@ -172,11 +172,6 @@ public final class Config {
         @Setting
         private boolean enabled = true;
 
-        @Setting
-        private Message format = new Message().setMessage("<blue>[Town] <white><sender>: <gray><message>");
-
-        @Setting
-        private Message spyFormat = new Message().setMessage("<red>[TownSpy] <white><town>@<sender>: <gray><message>");
     }
 
     @Getter

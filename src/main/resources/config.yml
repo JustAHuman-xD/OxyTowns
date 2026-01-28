@@ -307,10 +307,6 @@ town-vaults:
 town-chat:
   # Whether town chat is enabled.
   enabled: true
-  # This is the format of the town chat message.
-  format: "<green>[Town] <white><sender>: <gray><message>"
-  # This is the format for any players using /townchatspy (e.g. staff)
-  spy-format: "<red>[TownSpy] <white><town>@<sender>: <gray><message>"
 
 # We support queuing notifications for offline players when important town events occur.
 notifications:

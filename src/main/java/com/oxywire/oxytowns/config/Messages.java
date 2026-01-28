@@ -294,6 +294,43 @@ public final class Messages {
         @Setting
         private Unban unban = new Unban();
 
+        @Setting
+        private Chat chat = new Chat();
+
+        @Getter
+        @ConfigSerializable
+        public static final class Chat {
+            @Setting
+            private Message toggleOn = new Message().setMessage(
+                "<gold>You have toggled on town chat.");
+
+            @Setting
+            private Message toggleOff = new Message().setMessage(
+                "<gold>You have toggled off town chat.");
+
+            @Setting
+            private Message ignoreToggleOn = new Message().setMessage(
+                "<gold>You are now ignoring town chat messages.");
+            @Setting
+            private Message ignoreToggleOff = new Message().setMessage(
+                "<gold>You are no longer ignoring town chat messages.");
+
+            @Setting
+            private Message spyToggleOn = new Message().setMessage(
+                "<gold>You have enabled town chat spy.");
+            @Setting
+            private Message spyToggleOff = new Message().setMessage(
+                "<gold>You have disabled town chat spy.");
+
+            @Setting
+            private Message format = new Message().setMessage(
+                "<green>[Town] <white><sender>: <gray><message>");
+
+            @Setting
+            private Message spyFormat = new Message().setMessage(
+                "<red>[TownSpy] <white><town>@<sender>: <gray><message>");
+        }
+
         @Getter
         @ConfigSerializable
         public static final class Unban {
@@ -749,9 +786,6 @@ public final class Messages {
         private Town town = new Town();
 
         @Setting
-        private TownChatSpy townChatSpy = new TownChatSpy();
-
-        @Setting
         private Message stats = new Message().setMessage("""
             - Amount of towns: <towns>
             - Users in a town: <members>
@@ -841,15 +875,6 @@ public final class Messages {
                         + "balance is <yellow><balance> <gray>.");
 
             }
-        }
-
-        @Getter
-        @ConfigSerializable
-        public static final class TownChatSpy {
-            @Setting
-            private Message enabled = new Message().setMessage("<gold>You have enabled town chat spying.");
-            @Setting
-            private Message disabled = new Message().setMessage("<gold>You have disabled town chat spying.");
         }
     }
 
