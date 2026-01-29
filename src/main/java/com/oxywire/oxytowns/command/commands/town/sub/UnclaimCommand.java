@@ -31,7 +31,7 @@ public final class UnclaimCommand {
     @Hidden
     @MustBeInTown
     public void onUnclaimConfirm(final Player sender, final @SendersTown Town town) {
-        this.plugin.getOxyTownsApi().tryUnclaim(sender, town, true);
+        this.plugin.getOxyTownsApi().tryUnclaim(sender, town, ChunkPosition.chunkPosition(sender.getLocation()), true);
     }
 
     @CommandMethod("town|t unclaim")
