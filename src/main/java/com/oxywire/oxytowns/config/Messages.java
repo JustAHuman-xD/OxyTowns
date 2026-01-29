@@ -494,6 +494,10 @@ public final class Messages {
         public static final class Claim {
 
             @Setting
+            private Message claimCancelled =  new Message().setMessage(
+                "<red><b>Error</b> <dark_gray>» <red>Claiming was cancelled.");
+
+            @Setting
             private Message partialClaimSuccess = new Message().setMessage(
                 "<gold><b>Info</b> <dark_gray>» <gray>You were only able to claim <yellow><claims><gray>/<yellow><total> chunk(s) <gray>for <yellow>$<price><gray>.");
 
