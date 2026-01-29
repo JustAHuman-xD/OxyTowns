@@ -151,10 +151,8 @@ public final class OxyTownsApi {
      * @param outpostMenu whether to open the outpost menu on success
      * @return true if the unclaim was successful, false otherwise
      */
-    public boolean tryUnclaim(Player player, Town town, boolean outpostMenu) {
+    public boolean tryUnclaim(Player player, Town town, ChunkPosition chunkPosition, boolean outpostMenu) {
         final Messages messages = Messages.get();
-        final ChunkPosition chunkPosition = ChunkPosition.chunkPosition(player.getLocation().getChunk());
-
         if (!town.hasPermission(player.getUniqueId(), Permission.CLAIM_UNCLAIM)) {
             messages.getTown().getNoPermissionClaim().send(player);
             return false;
