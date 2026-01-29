@@ -13,6 +13,7 @@ public interface Named {
      * Set's the name for an entity.
      *
      * @param name Thew name for the entity.
+     * @return if the name was set successfully.
      */
-    void setName(String name);
+    boolean setName(String name);
 }

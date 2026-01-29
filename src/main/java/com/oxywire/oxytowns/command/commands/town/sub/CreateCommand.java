@@ -8,6 +8,8 @@ import com.oxywire.oxytowns.cache.TownCache;
 import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
+import com.oxywire.oxytowns.events.TownClaimEvent;
+import com.oxywire.oxytowns.events.TownCreateEvent;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import com.oxywire.oxytowns.utils.RegionUtils;
 import com.oxywire.oxytowns.utils.TownUtils;
@@ -64,11 +66,17 @@ public final class CreateCommand {
 
         final UUID uuid = UUID.randomUUID();
         final Town town = new Town(uuid, name, sender.getUniqueId());
-        town.claimChunks(ChunkPosition.chunkPosition(sender.getLocation()));
-        town.setHome(sender.getLocation());
-
-        this.townCache.createTown(town);
+        if (!this.townCache.createTown(town, sender)) {
+            messages.getTown().getCreationCancelled().send(sender);
+            return;
+        }
         this.townCache.updateVaultLogic(town);
+
+        if (town.claimChunks(ChunkPosition.chunkPosition(sender.getLocation()), sender, TownClaimEvent.ClaimCause.TOWN_CREATION)) {
+            town.setHome(sender.getLocation());
+        } else {
+            messages.getTown().getCreationClaimCancelled().send(sender);
+        }
 
         messages.getTown().getCreationTownCreated().send(
             Bukkit.getServer(),

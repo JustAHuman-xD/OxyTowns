@@ -85,6 +85,14 @@ public final class Messages {
             "<red><b>Error</b> <dark_gray>» <yellow><name> <red>already exists. Please pick another name.");
 
         @Setting
+        private Message creationCancelled = new Message().setMessage(
+            "<red><b>Error</b> <dark_gray>» <red>Town creation was cancelled.");
+
+        @Setting
+        private Message creationClaimCancelled = new Message().setMessage(
+            "<red><b>Error</b> <dark_gray>» <red>Could not claim the initial town chunk. <gray>(The town is still being created.)");
+
+        @Setting
         private Message creationTownCreated = new Message()
             .setMessage("<gold><b>Info</b> <dark_gray>» <gray>Town <yellow><name> <gray>has been created by <yellow><player><gray>.")
             .setSound(new Sound()
@@ -167,6 +175,10 @@ public final class Messages {
 
         @Setting
         private Message renameNoPermission = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>You are not allowed to rename your town.");
+
+        @Setting
+        private Message renameCancelled = new Message().setMessage(
+            "<red><b>Error</b> <dark_gray>» <red>Town rename was cancelled.");
 
         @Setting
         private Message settingsNoPermission = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>You are not allowed to manage town settings.");
@@ -424,6 +436,10 @@ public final class Messages {
         public static final class Claim {
 
             @Setting
+            private Message partialClaimSuccess = new Message().setMessage(
+                "<gold><b>Info</b> <dark_gray>» <gray>You were only able to claim <yellow><claims><gray>/<yellow><total> chunk(s) <gray>for <yellow>$<price><gray>.");
+
+            @Setting
             private Message claimSuccess = new Message().setMessage(
                 "<gold><b>Info</b> <dark_gray>» <gray>You successfully claimed <yellow><claims> chunk(s) <gray>for <yellow>$<price><gray>.");
 
@@ -471,6 +487,10 @@ public final class Messages {
 
             @Setting
             private Message notClaimed = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>This area isn't claimed.");
+
+            @Setting
+            private Message unclaimCancelled = new Message().setMessage(
+                "<red><b>Error</b> <dark_gray>» <red>Unclaim was cancelled.");
 
             @Setting
             private Message unclaimSuccess = new Message().setMessage("<red><b>Warning</b> <dark_gray>» <gray>Chunk unclaimed.");

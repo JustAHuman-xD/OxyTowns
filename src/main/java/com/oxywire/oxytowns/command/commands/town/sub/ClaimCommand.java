@@ -8,9 +8,11 @@ import com.oxywire.oxytowns.command.annotation.MustBeInTown;
 import com.oxywire.oxytowns.command.annotation.SendersTown;
 import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
+import com.oxywire.oxytowns.config.messaging.Message;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.Upgrade;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
+import com.oxywire.oxytowns.events.TownClaimEvent;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import com.oxywire.oxytowns.utils.RegionUtils;
 import com.oxywire.oxytowns.utils.TownUtils;
@@ -80,34 +82,39 @@ public final class ClaimCommand {
             return;
         }
 
-        int priceToClaim = (int) (claimPrice * chunksToClaim.size());
-
-        if (town.getBankValue() < priceToClaim) {
+        int totalPriceToClaim = (int) (claimPrice * chunksToClaim.size());
+        if (town.getBankValue() < totalPriceToClaim) {
             messages.getTown().getClaim().getErrorCannotAffordClaim().send(sender);
             return;
         }
 
-        town.removeWorth((double) priceToClaim);
-
-        chunksToClaim.forEach(chunkPosition -> {
+        int notClaimed = 0;
+        int finalPrice = 0;
+        for (ChunkPosition chunkPosition : chunksToClaim) {
             final Location location = Bukkit.getWorld(chunkPosition.getWorld()).getHighestBlockAt(chunkPosition.getX() << 4, chunkPosition.getZ() << 4).getLocation();
-
             if (RegionUtils.isInRegion(location) || town.hasClaimed(chunkPosition)) {
-                chunksToClaim.remove(chunkPosition);
-                return;
+                notClaimed++;
+                continue;
             }
+
+            if (!town.claimChunks(chunkPosition, sender, TownClaimEvent.ClaimCause.PLAYER)) {
+                notClaimed++;
+                continue;
+            }
+            finalPrice += claimPrice;
+            town.removeWorth(claimPrice);
 
             if (town.getClaimedChunks().isEmpty() && town.getHome() == null) {
                 town.setHome(sender.getLocation());
             }
+        }
 
-            town.claimChunks(chunkPosition);
-        });
-
-        messages.getTown().getClaim().getClaimSuccess().send(
+        Message message = notClaimed > 0 ? messages.getTown().getClaim().getPartialClaimSuccess() : messages.getTown().getClaim().getClaimSuccess();
+        message.send(
             sender,
-            Placeholder.unparsed("claims", String.valueOf(chunksToClaim.size())),
-            Formatter.number("price", priceToClaim)
+            Placeholder.unparsed("claims", String.valueOf(chunksToClaim.size() - notClaimed)),
+            Placeholder.unparsed("total", String.valueOf(chunksToClaim.size())),
+            Formatter.number("price", finalPrice)
         );
     }
 }

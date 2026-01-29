@@ -6,6 +6,7 @@ import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.config.UpkeepTimes;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.events.TaxCollectionEvent;
+import com.oxywire.oxytowns.events.TownUnclaimEvent;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import com.oxywire.oxytowns.utils.FinePosition;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
@@ -53,7 +54,9 @@ public final class TaxSchedule {
             if (taxToTake > 0 && taxToTake > town.getBankValue() && leniency.isEnabled() && leniency.isSellOutposts() && config.getOutpostRefund() > 0) {
                 while (!town.getOutpostChunks().isEmpty() && taxToTake > town.getBankValue()) {
                     FinePosition outpost = town.getOutpostChunks().iterator().next();
-                    town.unclaimChunk(ChunkPosition.chunkPosition(outpost), null);
+                    if (!town.unclaimChunk(ChunkPosition.chunkPosition(outpost), null, TownUnclaimEvent.UnclaimCause.UPKEEP)) {
+                        break;
+                    }
                 }
 
                 if (taxToTake <= town.getBankValue()) {
@@ -65,7 +68,7 @@ public final class TaxSchedule {
 
             if (taxToTake > 0 && taxToTake > town.getBankValue()) {
                 if (leniency.isEnabled() && !town.isMissedLastUpkeep()) {
-                    town.getOutpostAndClaimedChunks().forEach(chunk -> town.unclaimChunk(chunk, null));
+                    town.getOutpostAndClaimedChunks().forEach(chunk -> town.unclaimChunk(chunk, null, TownUnclaimEvent.UnclaimCause.UPKEEP));
                     town.setBankValue(0);
                     town.setMissedLastUpkeep(true);
                     town.notifyOfflineMembers("town-unclaimed", messages.getNotifications().getTownUnclaimed(), Placeholder.unparsed("town", town.getName()));
