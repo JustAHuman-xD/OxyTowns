@@ -138,6 +138,7 @@ town:
       <c:#ff9f30><b>|</b><st>                                                            </st>
     here-delimiter: "<gray>, <yellow>"
   claim:
+    claim-cancelled: "<red>Chunk claim cancelled."
     partial-claim-success: "<gold>You only successfully claimed <yellow><claims><gray>/<yellow><total> chunk(s) <gold>for <yellow>$<price><gold>."
     claim-success: "<gold>You successfully claimed <yellow><claims> chunk(s) <gold>for <yellow>$<price><gold>."
     chunk-already-claimed: "<red>This chunk is already claimed."

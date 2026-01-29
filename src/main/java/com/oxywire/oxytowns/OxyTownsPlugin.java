@@ -88,7 +88,7 @@ public class OxyTownsPlugin extends JavaPlugin {
         this.economy = rsp.getProvider();
 
 
-        this.oxyTownsApi = new OxyTownsApi();
+        this.oxyTownsApi = new OxyTownsApi(this.townCache);
         this.getServer().getServicesManager().register(OxyTownsApi.class, this.oxyTownsApi, this, ServicePriority.High);
 
         final CommandManager commandManager = CommandManager.install(this)
