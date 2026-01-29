@@ -7,6 +7,7 @@ import cloud.commandframework.annotations.CommandPermission;
 import com.oxywire.oxytowns.cache.TownCache;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
+import com.oxywire.oxytowns.events.TownClaimEvent;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
@@ -30,7 +31,7 @@ public final class TownClaimCommand {
             messages.getAdmin().getTown().getChunkAlreadyClaimed().send(sender, Placeholder.unparsed("town", presentTown.getName()));
             return;
         }
-        town.claimChunks(ChunkPosition.chunkPosition(sender.getLocation().getChunk()));
+        town.claimChunks(ChunkPosition.chunkPosition(sender.getLocation().getChunk()), sender, TownClaimEvent.ClaimCause.ADMIN);
         messages.getAdmin().getTown().getChunkClaimSuccess().send(sender, Placeholder.unparsed("town", town.getName()));
     }
 }

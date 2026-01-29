@@ -38,6 +38,12 @@ public final class Plot implements CreatedDateHolder, Placeholdered, Named {
         this.creationDate = new Date();
     }
 
+    @Override
+    public boolean setName(String name) {
+        this.name = name;
+        return true;
+    }
+
     /**
      * Helper method to add a member to the plot.
      *

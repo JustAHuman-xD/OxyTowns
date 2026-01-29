@@ -12,6 +12,7 @@ import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
+import com.oxywire.oxytowns.events.TownUnclaimEvent;
 import com.oxywire.oxytowns.menu.town.OutpostsMenu;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import com.oxywire.oxytowns.utils.TownUtils;
@@ -51,7 +52,11 @@ public final class UnclaimCommand {
         }
 
         boolean outpost = town.hasOutpost(chunkPosition);
-        town.unclaimChunk(chunkPosition, sender);
+        if (!town.unclaimChunk(chunkPosition, sender, TownUnclaimEvent.UnclaimCause.PLAYER)) {
+            messages.getTown().getUnclaim().getUnclaimCancelled().send(sender);
+            return;
+        }
+
         if (outpost) {
             final Config config = Config.get();
             final double outpostRefund = config.getOutpostRefund();
@@ -92,7 +97,10 @@ public final class UnclaimCommand {
             messages.getTown().getUnclaim().getConfirmHomeBlockUnclaim().send(sender);
         } else {
             // It's a regular claim. Unclaim and tell them they unclaimed it.
-            town.unclaimChunk(chunkPosition, sender);
+            if (!town.unclaimChunk(chunkPosition, sender, TownUnclaimEvent.UnclaimCause.PLAYER)) {
+                messages.getTown().getUnclaim().getUnclaimCancelled().send(sender);
+                return;
+            }
             messages.getTown().getUnclaim().getUnclaimSuccess().send(sender);
         }
     }

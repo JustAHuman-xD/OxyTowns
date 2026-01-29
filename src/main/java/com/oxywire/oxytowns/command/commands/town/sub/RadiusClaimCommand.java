@@ -10,6 +10,7 @@ import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.Upgrade;
+import com.oxywire.oxytowns.events.TownClaimEvent;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import com.oxywire.oxytowns.utils.RegionUtils;
 import com.oxywire.oxytowns.utils.TownUtils;
@@ -111,13 +112,15 @@ public final class RadiusClaimCommand {
                 priceToClaim -= claimPrice;
                 chunksToClaimSize--;
                 continue;
+            } else if (!town.claimChunks(chunkPosition, sender, TownClaimEvent.ClaimCause.PLAYER)) {
+                priceToClaim -= claimPrice;
+                chunksToClaimSize--;
+                continue;
             }
 
             if (town.getClaimedChunks().isEmpty() && town.getHome() == null) {
                 town.setHome(sender.getLocation());
             }
-
-            town.claimChunks(chunkPosition);
         }
 
         town.removeWorth((double) priceToClaim);
