@@ -7,6 +7,7 @@ import com.oxywire.oxytowns.utils.IntRange;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.SlotPos;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import lombok.Getter;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -51,6 +52,8 @@ public class MenuElement {
     @Setting
     private String itemModel = null;
     @Setting
+    private boolean hideTooltip = false;
+    @Setting
     private ItemFlag[] itemFlags = null;
     @Setting
     private String skullTexture = null;
@@ -79,6 +82,16 @@ public class MenuElement {
 
     public MenuElement setCustomModelData(final Integer customModelData) {
         this.customModelData = customModelData;
+        return this;
+    }
+
+    public MenuElement setItemModel(final String itemModel) {
+        this.itemModel = itemModel;
+        return this;
+    }
+
+    public MenuElement setHideTooltip(final boolean hideTooltip) {
+        this.hideTooltip = hideTooltip;
         return this;
     }
 
@@ -145,6 +158,7 @@ public class MenuElement {
         itemStack.setItemMeta(meta);
 
         if (this.itemModel != null) itemStack.setData(DataComponentTypes.ITEM_MODEL, Key.key(this.itemModel));
+        if (this.hideTooltip) itemStack.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().hideTooltip(true).build());
 
         return itemStack;
     }

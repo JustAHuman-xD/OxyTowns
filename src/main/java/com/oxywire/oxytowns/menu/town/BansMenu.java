@@ -30,6 +30,7 @@ public final class BansMenu extends PagedMenu {
         Menu.set(contents, elements.get("go-home"), e -> TownMainMenu.open(player, this.town));
         Menu.set(contents, elements.get("members"), e -> MembersMenu.open(player, this.town));
         Menu.set(contents, elements.get("trusted"), e -> TrustedMenu.open(player, this.town));
+        Menu.set(contents, elements.get("ban"), e -> {});
 
         return this.town.getBans().stream()
             .map(banEntry -> {
