@@ -48,7 +48,8 @@ public enum Permission {
     PUNISH(PermissionType.MODERATOR),
     UPGRADES(PermissionType.MODERATOR),
     TRUST(PermissionType.MODERATOR),
-    CLAIM_UNCLAIM(PermissionType.MODERATOR);
+    CLAIM_UNCLAIM(PermissionType.MODERATOR),
+    MANAGE_ROLES(PermissionType.MODERATOR);
 
     private final PermissionType permissionType;
 
