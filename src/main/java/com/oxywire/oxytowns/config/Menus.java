@@ -507,6 +507,11 @@ public final class Menus {
                                 .setDisplayName("<gold>Manage Trust")
                         ),
                         Map.entry(
+                            "permission-" + Permission.MANAGE_ROLES, new MenuElement()
+                                .setMaterial(Material.WRITABLE_BOOK)
+                                .setDisplayName("<gold>Manage Roles")
+                        ),
+                        Map.entry(
                             "role-" + Role.CO_MAYOR, new MenuElement()
                             .setMaterial(Material.NAME_TAG)
                             .setSlot(6)

@@ -1021,6 +1021,11 @@ paged:
         display-name: "<c:#ff9f30>Manage Trust"
         slots:
           - 1
+      permission-MANAGE_ROLES:
+          material: WRITABLE_BOOK
+          display-name: "<c:#ff9f30>Manage Roles"
+          slots:
+            - 1
       permission-ANIMALS:
         material: PIG_SPAWN_EGG
         display-name: "<c:#ff9f30>Animals"

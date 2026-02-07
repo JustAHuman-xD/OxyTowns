@@ -5,6 +5,7 @@ import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.config.messaging.Message;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.Role;
+import com.oxywire.oxytowns.entities.types.perms.Permission;
 import com.oxywire.oxytowns.menu.Menu;
 import com.oxywire.oxytowns.menu.MenuElement;
 import com.oxywire.oxytowns.menu.PagedMenu;
@@ -21,6 +22,11 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +37,8 @@ public final class MembersMenu extends PagedMenu {
 
     // TODO: replace this with something better
     private static final Map<UUID, String> NAME_CACHE = new HashMap<>();
+    private static final Map<UUID, String> LAST_ONLINE_CACHE = new HashMap<>();
+    private static final DateTimeFormatter LAST_ONLINE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final Town town;
 
@@ -38,6 +46,22 @@ public final class MembersMenu extends PagedMenu {
         return NAME_CACHE.computeIfAbsent(uuid, k -> {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(k);
             return offlinePlayer.getName() != null ? offlinePlayer.getName() : k + " (name not cached)";
+        });
+    }
+
+    private static String getLastOnline(UUID uuid) {
+        if (Bukkit.getPlayer(uuid) != null) {
+            LAST_ONLINE_CACHE.remove(uuid);
+            return "Now";
+        }
+        return LAST_ONLINE_CACHE.computeIfAbsent(uuid, k -> {
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(k);
+            long timestamp = offlinePlayer.getLastLogin();
+            if (timestamp > 0) {
+                Instant instant = Instant.ofEpochMilli(timestamp);
+                return LAST_ONLINE_FORMATTER.format(instant.atZone(ZoneId.systemDefault()).toLocalDate());
+            }
+            return "Unknown";
         });
     }
 
@@ -62,7 +86,8 @@ public final class MembersMenu extends PagedMenu {
                 final ItemStack item = elements.get("member").getItem(
                     Placeholder.unparsed("name", Objects.requireNonNullElse(name, member.getKey().toString() + " (name not cached)")),
                     Placeholder.unparsed("role", Message.formatEnum(member.getValue())),
-                    Formatter.booleanChoice("status", Bukkit.getPlayer(member.getKey()) != null)
+                    Formatter.booleanChoice("status", Bukkit.getPlayer(member.getKey()) != null),
+                    Placeholder.unparsed("last-online", getLastOnline(member.getKey()))
                 );
                 item.setData(DataComponentTypes.PROFILE, ResolvableProfile.resolvableProfile()
                     .uuid(member.getKey()));
@@ -73,15 +98,16 @@ public final class MembersMenu extends PagedMenu {
                         player,
                         this.town,
                         member.getKey(),
-                        e.isLeftClick()
+                        e.isLeftClick(),
+                        true
                     )
                 );
             })
             .toArray(ClickableItem[]::new);
     }
 
-    private static void role(final Player player, final Town town, final UUID target, final boolean promote) {
-        if (!town.getOwner().equals(player.getUniqueId())) {
+    public static void role(final Player player, final Town town, final UUID target, final boolean promote, final boolean gui) {
+        if (!town.hasPermission(player.getUniqueId(), Permission.MANAGE_ROLES)) {
             return;
         }
 
@@ -94,7 +120,9 @@ public final class MembersMenu extends PagedMenu {
             return;
         }
 
-        open(player, town);
+        if (gui) {
+            open(player, town);
+        }
 
         Messages messages = Messages.get();
         Message message = promote ? messages.getTown().getBroadcastPromotion() : messages.getTown().getBroadcastDemotion();
