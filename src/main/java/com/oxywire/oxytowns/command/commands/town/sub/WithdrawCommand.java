@@ -28,6 +28,11 @@ public final class WithdrawCommand {
     @MustBeInTown
     public void onWithdraw(final Player sender, final @SendersTown Town town, final @Argument("amount") @Range(min = "0.01") double amount) {
         final Messages messages = Messages.get();
+        if (!Config.get().getTownBank().isAccessOutsideTown() && town.getOutpostAndClaimedChunks().isEmpty()) {
+            messages.getTown().getBank().getErrorMustClaimFirst().send(sender);
+            return;
+        }
+
         if (!Config.get().getTownBank().isAccessOutsideTown() && !town.hasClaimed(sender.getLocation())) {
             messages.getTown().getBank().getErrorNotWithinTown().send(sender);
             return;

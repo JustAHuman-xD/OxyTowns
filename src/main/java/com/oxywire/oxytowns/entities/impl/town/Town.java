@@ -74,6 +74,8 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
     private FinePosition spawnPosition;
     @Setter
     private double bankValue;
+    @Setter
+    private boolean missedLastUpkeep;
     private final Map<Upgrade, Integer> townUpgrades;
     private final List<VaultMenu> vaults;
     private final Set<BanEntry> bans;
@@ -147,7 +149,9 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
      * @param player      the player unclaiming the chunk
      */
     public void unclaimChunk(final ChunkPosition chunkRegion, final Player player) {
-        this.outpostChunks.removeIf(it -> ChunkPosition.chunkPosition(it).equals(chunkRegion));
+        if (this.outpostChunks.removeIf(it -> ChunkPosition.chunkPosition(it).equals(chunkRegion))) {
+            this.bankValue += Config.get().getOutpostRefund();
+        }
         this.claimedChunks.remove(chunkRegion);
         this.playerPlots.remove(chunkRegion);
         OxyTownsPlugin.get().getTownCache().getTownsMap().remove(chunkRegion);
@@ -198,10 +202,10 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
      * @return claimed or not
      */
     public boolean hasClaimed(final ChunkPosition chunkPosition) {
-        if (claimedChunks.contains(chunkPosition)) {
-            return true;
-        }
+        return claimedChunks.contains(chunkPosition) || hasOutpost(chunkPosition);
+    }
 
+    public boolean hasOutpost(final ChunkPosition chunkPosition) {
         for (FinePosition location : this.outpostChunks) {
 //            if (!location.isWorldLoaded()) {
 //                continue; // ??? - We lose the entire world context if it unloads (i.e. on shutdown)

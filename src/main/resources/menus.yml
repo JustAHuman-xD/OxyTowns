@@ -640,7 +640,8 @@ paged:
           - 26
           - 27
           - 35
-          - 37-44
+          - 37-39
+          - 41-44
     elements:
       go-home:
         material: RED_STAINED_GLASS_PANE
@@ -648,6 +649,14 @@ paged:
         lore: [ ]
         slots:
           - 36
+      claim-outpost:
+        material: LIME_STAINED_GLASS_PANE
+        display-name: "<green>Claim Outpost Here"
+        lore:
+          - ""
+          - "<green>■ Left Click to claim an outpost for $<price>."
+        slots:
+          - 40
       outpost:
         material: GRASS_BLOCK
         display-name: "<c:#ff9f30><b>Outpost"
@@ -655,7 +664,7 @@ paged:
           - "<c:#f7d3a3>World: <white><world>"
           - "<c:#f7d3a3>Coords: <white><x> <gray>-<white> <z>"
           - ""
-          - "<yellow>■ Left Click to  visit."
+          - "<yellow>■ Left Click to visit."
         slots:
           - 1
     previous-page-element:

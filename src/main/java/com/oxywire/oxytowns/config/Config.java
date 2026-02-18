@@ -31,6 +31,9 @@ public final class Config {
     private double outpostPrice = 50_000.0;
 
     @Setting
+    private double outpostRefund = 10_000.0;
+
+    @Setting
     private int maxClaimRadius = 1;
 
     @Setting
@@ -83,6 +86,12 @@ public final class Config {
         private boolean enabled = true;
 
         @Setting
+        private Leniency leniency = new Leniency();
+
+        @Setting
+        private boolean backupBeforeDisband = true;
+
+        @Setting
         private double townValue = 25;
 
         @Setting
@@ -90,6 +99,18 @@ public final class Config {
 
         @Setting
         private ZoneId timezone = ZoneId.of("America/New_York");
+
+        @Getter
+        @ConfigSerializable
+        public static final class Leniency {
+
+            @Setting
+            private boolean enabled = true;
+
+            @Setting
+            private boolean sellOutposts = true;
+
+        }
 
     }
 

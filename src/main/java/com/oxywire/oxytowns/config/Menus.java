@@ -596,11 +596,22 @@ public final class Menus {
                     Map.of(
                         "go-home", new MenuElement()
                             .setMaterial(Material.RED_STAINED_GLASS_PANE)
+                            .setDisplayName("<red>Return Home")
                             .setSlot(36)
                             .setLore(
                                 List.of(
                                     "",
                                     "<red>Click to return to the main menu."
+                                )
+                            ),
+                        "claim-outpost", new MenuElement()
+                            .setMaterial(Material.LIME_STAINED_GLASS_PANE)
+                            .setDisplayName("<green>Claim Outpost Here")
+                            .setSlot(40)
+                            .setLore(
+                                List.of(
+                                    "",
+                                    "<green>■ Left Click to claim an outpost for $<price>."
                                 )
                             ),
                         "outpost", new MenuElement()

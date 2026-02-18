@@ -6,6 +6,8 @@ import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.config.UpkeepTimes;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.events.TaxCollectionEvent;
+import com.oxywire.oxytowns.utils.ChunkPosition;
+import com.oxywire.oxytowns.utils.FinePosition;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
@@ -47,18 +49,43 @@ public final class TaxSchedule {
             double taxToTake = config.getUpkeep().getTownValue() * town.getOutpostAndClaimedChunks().size();
             totalTax += taxToTake;
 
+            Config.Upkeep.Leniency leniency = config.getUpkeep().getLeniency();
+            if (taxToTake > 0 && taxToTake > town.getBankValue() && leniency.isEnabled() && leniency.isSellOutposts() && config.getOutpostRefund() > 0) {
+                while (!town.getOutpostChunks().isEmpty() && taxToTake > town.getBankValue()) {
+                    FinePosition outpost = town.getOutpostChunks().iterator().next();
+                    town.unclaimChunk(ChunkPosition.chunkPosition(outpost), null);
+                }
+
+                if (taxToTake <= town.getBankValue()) {
+                    messages.getTax().getTownOutpostsUnclaimed().send(Bukkit.getServer(), Placeholder.unparsed("town", town.getName()));
+                }
+            }
+
             if (taxToTake > 0 && taxToTake > town.getBankValue()) {
-                toDelete.add(town);
-                messages.getTax().getTownDisbanded().send(Bukkit.getServer(), Placeholder.unparsed("town", town.getName()));
+                if (leniency.isEnabled() && !town.isMissedLastUpkeep()) {
+                    town.getOutpostAndClaimedChunks().forEach(chunk -> town.unclaimChunk(chunk, null));
+                    town.setBankValue(0);
+                    town.setMissedLastUpkeep(true);
+                    messages.getTax().getTownUnclaimed().send(Bukkit.getServer(), Placeholder.unparsed("town", town.getName()));
+                } else {
+                    toDelete.add(town);
+                    messages.getTax().getTownDisbanded().send(Bukkit.getServer(), Placeholder.unparsed("town", town.getName()));
+                }
                 continue;
             }
 
             if (taxToTake > 0) {
                 town.removeWorth(taxToTake);
+                town.setMissedLastUpkeep(false);
             }
         }
 
-        toDelete.forEach(this.plugin.getTownCache()::deleteTown);
+        toDelete.forEach(town -> {
+            if (config.getUpkeep().isBackupBeforeDisband()) {
+                this.plugin.getTownCache().getTownDao().backup(town, "upkeep_disband");
+            }
+            this.plugin.getTownCache().deleteTown(town);
+        });
         return Map.entry(toDelete.stream().map(Town::getName).toList(), totalTax);
     }
 
