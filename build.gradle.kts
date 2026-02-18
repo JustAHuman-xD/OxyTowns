@@ -23,6 +23,7 @@ repositories {
     maven("https://maven.enginehub.org/repo/")
     maven("https://jitpack.io")
     maven("https://repo.dmulloy2.net/nexus/repository/public/")
+    maven("https://repo.codemc.io/repository/maven-public/")
 }
 
 dependencies {
@@ -31,6 +32,7 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.9")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("xyz.jpenilla:squaremap-api:1.1.15")
+    compileOnly("me.chancesd.pvpmanager:pvpmanager:4.0.4")
 
     implementation("org.bstats:bstats-bukkit:3.0.2")
     implementation("org.spongepowered:configurate-yaml:4.1.2")
@@ -97,5 +99,5 @@ configure<BukkitPluginDescription> {
     main = "com.oxywire.oxytowns.OxyTownsPlugin"
     authors = listOf("SirKillian", "SirSalad", "Glare",)
     depend = listOf("Vault")
-    softDepend = listOf("WorldGuard", "PlaceholderAPI", "squaremap")
+    softDepend = listOf("WorldGuard", "PlaceholderAPI", "squaremap", "PvPManager")
 }

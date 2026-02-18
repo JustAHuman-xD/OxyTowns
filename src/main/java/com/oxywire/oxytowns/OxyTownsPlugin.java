@@ -3,9 +3,9 @@ package com.oxywire.oxytowns;
 import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.services.types.ConsumerService;
-import com.oxywire.oxytowns.addons.BStats;
-import com.oxywire.oxytowns.addons.OxyTownsExpansion;
-import com.oxywire.oxytowns.addons.SquareMapAddon;
+import com.oxywire.oxytowns.hooks.impl.BStatsHook;
+import com.oxywire.oxytowns.hooks.impl.PlaceholderApiHook;
+import com.oxywire.oxytowns.hooks.impl.SquareMapHook;
 import com.oxywire.oxytowns.api.OxyTownsApi;
 import com.oxywire.oxytowns.cache.TownCache;
 import com.oxywire.oxytowns.command.CommandManager;
@@ -23,6 +23,8 @@ import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.config.UpkeepTimes;
 import com.oxywire.oxytowns.config.internal.ConfigManager;
 import com.oxywire.oxytowns.entities.impl.town.Town;
+import com.oxywire.oxytowns.hooks.Hooks;
+import com.oxywire.oxytowns.hooks.impl.PvPManagerHook;
 import com.oxywire.oxytowns.listeners.NewEventsHandler;
 import com.oxywire.oxytowns.menu.Menu;
 import com.oxywire.oxytowns.runnable.MobsRunnable;
@@ -59,11 +61,9 @@ public class OxyTownsPlugin extends JavaPlugin {
     private TaxSchedule taxSchedule;
 
     @Override
-    public void onEnable() {
-        final long start = System.currentTimeMillis();
-
+    public void onLoad() {
         instance = this;
-        Menu.INVENTORY_MANAGER.init();
+        notificationStorageManager = new NotificationStorageManager(this);
 
         try {
             configManager = new ConfigManager(getDataFolder().toPath());
@@ -75,7 +75,24 @@ public class OxyTownsPlugin extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
-        notificationStorageManager = new NotificationStorageManager(this);
+        Config.Hooks hooksConfig = Config.get().getHooks();
+        if (hooksConfig.isBstats()) {
+            Hooks.registerHook(new BStatsHook());
+        }
+        if (hooksConfig.isPlaceholderApi()) {
+            Hooks.registerHook(new PlaceholderApiHook());
+        }
+        if (hooksConfig.getSquaremap().isEnabled()) {
+            Hooks.registerHook(new SquareMapHook());
+        }
+        if (hooksConfig.getPvpManager().isEnabled()) {
+            Hooks.registerHook(new PvPManagerHook());
+        }
+    }
+
+    @Override
+    public void onEnable() {
+        Menu.INVENTORY_MANAGER.init();
 
         this.townCache = new TownCache(this);
 
@@ -179,16 +196,10 @@ public class OxyTownsPlugin extends JavaPlugin {
         }
 
         this.getServer().getPluginManager().registerEvents(new NewEventsHandler(), this);
-        this.registerAddons();
+        Hooks.enableHooks(this);
 
         this.taxSchedule = new TaxSchedule(this);
         new MobsRunnable().runTaskTimer(this, 0, 20 * 8);
-    }
-
-    private void registerAddons() {
-        new BStats(this);
-        if (this.getServer().getPluginManager().isPluginEnabled("squaremap")) new SquareMapAddon();
-        if (this.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) new OxyTownsExpansion();
     }
 
     @Override

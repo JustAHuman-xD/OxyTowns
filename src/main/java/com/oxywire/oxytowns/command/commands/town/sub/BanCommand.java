@@ -75,9 +75,8 @@ public final class BanCommand {
 
         final Town targetTown = this.townCache.getTownByLocation(target.getLocation());
         // The player is currently in the banned town
-        if (targetTown != null && targetTown.getTownId().equals(town.getTownId())) {
-            final String command = Config.get().getBanConsoleCommand().replace("%player%", target.getName());
-            Bukkit.getScheduler().runTask(OxyTownsPlugin.get(), () -> Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command));
+        if (targetTown != null && targetTown.getTownId().equals(town.getTownId()) && Config.get().getTownBanExpel().isEnabled()) {
+            Bukkit.getScheduler().runTask(OxyTownsPlugin.get(), () -> Config.get().getTownBanExpel().expel(target));
         }
 
         messages.getPlayer().getBannedFromTown().send(target, Placeholder.unparsed("player", sender.getName()), Placeholder.unparsed("town", town.getName()));

@@ -15,7 +15,6 @@ import com.oxywire.oxytowns.entities.impl.TrustedEntry;
 import com.oxywire.oxytowns.entities.impl.plot.Plot;
 import com.oxywire.oxytowns.entities.model.Named;
 import com.oxywire.oxytowns.entities.model.Organisation;
-import com.oxywire.oxytowns.entities.types.PlotType;
 import com.oxywire.oxytowns.entities.types.Role;
 import com.oxywire.oxytowns.entities.types.Upgrade;
 import com.oxywire.oxytowns.entities.types.perms.Permission;

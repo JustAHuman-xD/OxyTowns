@@ -5,6 +5,7 @@ import com.oxywire.oxytowns.config.messaging.Message;
 import com.oxywire.oxytowns.config.messaging.Message.Sound;
 import com.oxywire.oxytowns.config.messaging.Message.Title;
 import lombok.Getter;
+import net.kyori.adventure.bossbar.BossBar;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
@@ -25,6 +26,26 @@ public final class Messages {
 
     @Setting
     private Message nowEnteringTown = new Message().setActionBar("<gold><bold>Now entering: <yellow><town>");
+
+    @Setting
+    private Message nowEnteringPvpProtection = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<gold><bold>Entered PVP Protection <gray>- <white>You are now in a safe zone.")
+        .setColor(BossBar.Color.GREEN));
+
+    @Setting
+    private Message nowEnteringPvpProtectionPvpOff = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<gold><bold>Entered PVP Protection <gray>- <white>You still have PVP disabled.")
+        .setColor(BossBar.Color.GREEN));
+
+    @Setting
+    private Message nowLeavingPvpProtection = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<red><bold>Left PVP Protection <gray>- <white>You will be vulnerable in <grace_period> seconds.")
+        .setColor(BossBar.Color.RED));
+
+    @Setting
+    private Message nowLeavingPvpProtectionPvpOff = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<red><bold>Leaving PVP Protection <gray>- <white>You still have PVP disabled.")
+        .setColor(BossBar.Color.RED));
 
     @Setting
     private Message bypassOn = new Message()
