@@ -5,6 +5,7 @@ import com.destroystokyo.paper.MaterialTags;
 import com.google.common.collect.Sets;
 import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.cache.TownCache;
+import com.oxywire.oxytowns.command.commands.town.TownChatCommand;
 import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.config.messaging.Message;
@@ -18,6 +19,7 @@ import com.oxywire.oxytowns.hooks.impl.PvPManagerHook;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import io.papermc.paper.entity.TeleportFlag;
 import io.papermc.paper.event.entity.EntityMoveEvent;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
@@ -157,6 +159,11 @@ public class NewEventsHandler implements Listener {
                 OxyTownsPlugin.notificationStorageManager.sendAndConsumeNotificationsFor(player);
             }
         }, config.getDelayAfterJoin(), TimeUnit.SECONDS);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onChat(AsyncChatEvent event) {
+        TownChatCommand.handleChat(event);
     }
 
     @EventHandler

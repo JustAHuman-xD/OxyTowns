@@ -218,6 +218,15 @@ town:
     not-banned: "<red>That player is not banned."
     no-permission: "<red>You don't have permission to unban users from your town."
     broadcast-unban: "<yellow><player> <gold>is now unbanned from your town."
+  chat:
+    toggle-on: "<gold>You have toggled on town chat."
+    toggle-off: "<gold>You have toggled off town chat."
+    ignore-toggle-on: "<gold>You are now ignoring town chat messages."
+    ignore-toggle-off: "<gold>You are no longer ignoring town chat messages."
+    spy-toggle-on: "<gold>You have enabled town chat spying."
+    spy-toggle-off: "<gold>You have disabled town chat spying."
+    format: "<green>[Town] <white><sender>: <gray><message>"
+    spy-format: "<red>[TownSpy] <white><town>@<sender>: <gray><message>"
 player:
   error-cannot-afford-deposit: "<red>You don't have enough money to deposit <yellow>$<amount><red>."
   town-invited-expired: "<red>Your invite from <yellow><town> <red>has expired."
