@@ -5,6 +5,7 @@ import com.oxywire.oxytowns.config.messaging.Message;
 import com.oxywire.oxytowns.config.messaging.Message.Sound;
 import com.oxywire.oxytowns.config.messaging.Message.Title;
 import lombok.Getter;
+import net.kyori.adventure.bossbar.BossBar;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
@@ -27,6 +28,26 @@ public final class Messages {
     private Message nowEnteringTown = new Message().setActionBar("<gold><bold>Now entering: <yellow><town>");
 
     @Setting
+    private Message nowEnteringPvpProtection = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<gold><bold>Entered PVP Protection <gray>- <white>You are now in a safe zone.")
+        .setColor(BossBar.Color.GREEN));
+
+    @Setting
+    private Message nowEnteringPvpProtectionPvpOff = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<gold><bold>Entered PVP Protection <gray>- <white>You still have PVP disabled.")
+        .setColor(BossBar.Color.GREEN));
+
+    @Setting
+    private Message nowLeavingPvpProtection = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<red><bold>Left PVP Protection <gray>- <white>You will be vulnerable in <grace_period> seconds.")
+        .setColor(BossBar.Color.RED));
+
+    @Setting
+    private Message nowLeavingPvpProtectionPvpOff = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<red><bold>Leaving PVP Protection <gray>- <white>You still have PVP disabled.")
+        .setColor(BossBar.Color.RED));
+
+    @Setting
     private Message bypassOn = new Message()
         .setMessage("<gold><b>Info</b> <dark_gray>» <gray>You have toggled <yellow>Bypass <green>on<gray>.");
 
@@ -45,6 +66,9 @@ public final class Messages {
 
     @Setting
     private Tax tax = new Tax();
+
+    @Setting
+    private Notifications notifications = new Notifications();
 
     @Setting
     private CommandFeedback commandFeedback = new CommandFeedback();
@@ -827,6 +851,40 @@ public final class Messages {
             @Setting
             private Message disabled = new Message().setMessage("<gold>You have disabled town chat spying.");
         }
+    }
+
+    @Getter
+    @ConfigSerializable
+    public static final class Notifications {
+
+        @Setting
+        private Message townRenamed = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><old-name> <red>was renamed to <yellow><new-name><red>.");
+
+        @Setting
+        private Message townOutpostsUnclaimed = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><town> <red>couldn't afford to pay taxes and had some outposts repossessed to make up for it.");
+
+        @Setting
+        private Message townUnclaimed = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><town> <red>couldn't afford to pay taxes and was unclaimed. (If they miss it again it will be disbanded)");
+
+        @Setting
+        private Message townDisbanded = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><town> <red>couldn't afford to pay taxes and was disbanded.");
+
+        @Setting
+        private Message townKicked = new Message().setMessage(
+            "<red>While you were offline, you were kicked from the town <yellow><town><red>.");
+
+        @Setting
+        private Message townBanned = new Message().setMessage(
+            "<red>While you were offline, you were banned from the town <yellow><town><red>.");
+
+        @Setting
+        private Message townRoleChanged = new Message().setMessage(
+            "<red>While you were offline, your role in the town <yellow><town> <red>was changed to <yellow><role><red>.");
+
     }
 
     @Getter

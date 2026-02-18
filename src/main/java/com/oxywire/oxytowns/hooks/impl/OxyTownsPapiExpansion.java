@@ -1,4 +1,4 @@
-package com.oxywire.oxytowns.addons;
+package com.oxywire.oxytowns.hooks.impl;
 
 import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.cache.TownCache;
@@ -13,9 +13,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-public final class OxyTownsExpansion extends PlaceholderExpansion {
+public final class OxyTownsPapiExpansion extends PlaceholderExpansion {
+
+    private static final Function<OfflinePlayer, String> NULL = player -> "";
 
     private final TownCache townCache = OxyTownsPlugin.get().getTownCache();
+
     private final Map<String, Function<OfflinePlayer, String>> placeholderData = Map.of(
         "name", player -> townCache.getTownByPlayer(player.getUniqueId()).map(Town::getName).orElse("None"),
         "balance", player -> String.valueOf(townCache.getTownByPlayer(player.getUniqueId()).map(Town::getBankValue).orElse(0.00)),
@@ -27,11 +30,6 @@ public final class OxyTownsExpansion extends PlaceholderExpansion {
         "town_rank", player -> townCache.getTownByPlayer(player.getUniqueId()).map(town -> town.getOwnerAndMembersWithRoles().get(player.getUniqueId())).map(Message::formatEnum).orElse(""),
         "whereami", player -> player instanceof Player onlinePlayer ? Optional.ofNullable(townCache.getTownByLocation(onlinePlayer.getLocation())).map(Town::getName).orElse("Wilderness") : "Wilderness"
     );
-    private static final Function<OfflinePlayer, String> NULL = player -> "";
-
-    public OxyTownsExpansion() {
-        register();
-    }
 
     @Override
     public String getIdentifier() {

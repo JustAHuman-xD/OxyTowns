@@ -3,7 +3,9 @@ package com.oxywire.oxytowns.storage;
 import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.utils.Json;
+import org.slf4j.Logger;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,12 +40,23 @@ public class TownStorageManager {
      */
     public List<Town> getAll() {
         final List<Town> towns = new ArrayList<>();
-        for (final File file : this.dataFile.listFiles()) {
-            try {
-                final Town town = Json.GSON.fromJson(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8), Town.class);
+        final File[] townFiles = this.dataFile.listFiles();
+        if (townFiles == null) {
+            return towns;
+        }
+
+        Logger logger = OxyTownsPlugin.get().getSLF4JLogger();
+        for (final File townFile : townFiles) {
+            if (!townFile.isFile() || !townFile.getName().endsWith(".json")) {
+                logger.warn("Skipping non town file under towns data folder: {}", townFile.getName());
+                continue;
+            }
+
+            try(BufferedReader reader = Files.newBufferedReader(townFile.toPath(), StandardCharsets.UTF_8)) {
+                final Town town = Json.GSON.fromJson(reader, Town.class);
                 towns.add(town);
-            } catch (final FileNotFoundException e) {
-                e.printStackTrace();
+            } catch (final Exception e) {
+                logger.error("Failed to load town from file: {}", townFile.getName(), e);
             }
         }
         return towns;

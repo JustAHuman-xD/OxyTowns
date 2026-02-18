@@ -3,6 +3,7 @@ package com.oxywire.oxytowns.command.commands.town.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
+import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.command.annotation.MustBeInTown;
 import com.oxywire.oxytowns.command.annotation.SendersTown;
 import com.oxywire.oxytowns.config.Messages;
@@ -55,6 +56,11 @@ public final class KickCommand {
                 Placeholder.unparsed("town", town.getName()),
                 Placeholder.unparsed("kicker", sender.getName())
             );
+        } else {
+            OxyTownsPlugin.notificationStorageManager.queueNotification(wantedPlayer.getUniqueId(), "town-kicked", messages.getNotifications().getTownKicked().message(
+                Placeholder.unparsed("town", town.getName()),
+                Placeholder.unparsed("kicker", sender.getName())
+            ));
         }
 
         messages.getTown().getKickSuccess().send(town, Placeholder.unparsed("player", wantedPlayer.getName()), Placeholder.unparsed("kicker", sender.getName()));
