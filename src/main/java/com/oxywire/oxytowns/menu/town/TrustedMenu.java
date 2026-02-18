@@ -30,6 +30,7 @@ public final class TrustedMenu extends PagedMenu {
         final Map<String, MenuElement> elements = getConfig().getElements();
         Menu.set(contents, elements.get("go-home"), e -> TownMainMenu.open(player, this.town));
         Menu.set(contents, elements.get("members"), e -> MembersMenu.open(player, this.town));
+        Menu.set(contents, elements.get("trusted"), e -> {});
         Menu.set(contents, elements.get("ban"), e -> BansMenu.open(player, this.town));
 
         return this.town.getTrusted().stream()

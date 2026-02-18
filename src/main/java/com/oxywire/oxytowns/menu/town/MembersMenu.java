@@ -52,8 +52,9 @@ public final class MembersMenu extends PagedMenu {
         final Map<String, MenuElement> elements = getConfig().getElements();
 
         Menu.set(contents, elements.get("go-home"), e -> TownMainMenu.open(player, this.town));
-        Menu.set(contents, elements.get("ban"), e -> BansMenu.open(player, this.town));
+        Menu.set(contents, elements.get("members"), e -> {});
         Menu.set(contents, elements.get("trusted"), e -> TrustedMenu.open(player, this.town));
+        Menu.set(contents, elements.get("ban"), e -> BansMenu.open(player, this.town));
 
         return this.town.getOwnerAndMembersWithRoles().entrySet().stream()
             .sorted((a, b) -> PlayerIsOnlineComparator.INSTANCE.compare(a.getKey(), b.getKey()))
