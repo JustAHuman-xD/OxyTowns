@@ -3,12 +3,15 @@ package com.oxywire.oxytowns.cache;
 import com.google.common.collect.Sets;
 import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.entities.impl.town.Town;
+import com.oxywire.oxytowns.events.TownCreateEvent;
+import com.oxywire.oxytowns.events.TownDisbandEvent;
 import com.oxywire.oxytowns.menu.town.VaultSelectorMenu;
 import com.oxywire.oxytowns.storage.TownStorageManager;
 import com.oxywire.oxytowns.utils.ChunkPosition;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -129,13 +132,27 @@ public final class TownCache {
     }
 
     /**
+     * @deprecated use {@link #createTown(Town, Player)} instead.
+     */
+    @Deprecated(since = "1.5.0")
+    public void createTown(final Town town) {
+        createTown(town, null);
+    }
+
+    /**
      * Helper method to create a town.
      *
-     * @param town the town to add
+     * @param town   the town to add
+     * @param player the player creating the town, if any
+     * @return if the town was created successfully (if the event wasn't cancelled)
      */
-    public void createTown(final Town town) {
-        this.towns.add(town);
-        this.townsMap.putAll(town.getOutpostAndClaimedChunks().stream().collect(Collectors.toMap(chunk -> chunk, chunk -> town)));
+    public boolean createTown(final Town town, final @Nullable Player player) {
+        if (new TownCreateEvent(town, player).callEvent()) {
+            this.towns.add(town);
+            this.townsMap.putAll(town.getOutpostAndClaimedChunks().stream().collect(Collectors.toMap(chunk -> chunk, chunk -> town)));
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -153,6 +170,7 @@ public final class TownCache {
      * @param town the town to delete
      */
     public synchronized void deleteTown(final Town town) {
+        new TownDisbandEvent(town).callEvent();
         this.townDao.delete(town);
         this.towns.remove(town);
         this.townsMap.values().removeIf(it -> it == town);

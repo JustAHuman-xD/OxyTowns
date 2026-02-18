@@ -3,7 +3,7 @@ package com.oxywire.oxytowns.command.commands.town.sub;
 import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.Hidden;
-import com.oxywire.oxytowns.cache.TownCache;
+import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.command.annotation.AcceptConfirmation;
 import com.oxywire.oxytowns.command.annotation.CreateConfirmation;
 import com.oxywire.oxytowns.command.annotation.MustBeInTown;
@@ -12,18 +12,17 @@ import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
 import com.oxywire.oxytowns.entities.impl.town.Town;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
-import com.oxywire.oxytowns.menu.town.OutpostsMenu;
+import com.oxywire.oxytowns.events.TownUnclaimEvent;
 import com.oxywire.oxytowns.utils.ChunkPosition;
-import com.oxywire.oxytowns.utils.TownUtils;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import org.bukkit.entity.Player;
 
 public final class UnclaimCommand {
 
-    private final TownCache townCache;
+    private final OxyTownsPlugin plugin;
 
-    public UnclaimCommand(final TownCache townCache) {
-        this.townCache = townCache;
+    public UnclaimCommand(final OxyTownsPlugin plugin) {
+        this.plugin = plugin;
     }
 
     @CommandMethod("town|t unclaim confirm")
@@ -32,35 +31,7 @@ public final class UnclaimCommand {
     @Hidden
     @MustBeInTown
     public void onUnclaimConfirm(final Player sender, final @SendersTown Town town) {
-        final Messages messages = Messages.get();
-        final ChunkPosition chunkPosition = ChunkPosition.chunkPosition(sender.getLocation().getChunk());
-
-        if (!town.hasPermission(sender.getUniqueId(), Permission.CLAIM_UNCLAIM)) {
-            messages.getTown().getNoPermissionClaim().send(sender);
-            return;
-        }
-
-        if (!town.hasClaimed(chunkPosition)) {
-            messages.getTown().getUnclaim().getNotClaimed().send(sender);
-            return;
-        }
-
-        if (!TownUtils.townExclusive(this.townCache, town, sender, 1, false)) {
-            messages.getTown().getUnclaim().getChunkLinkedOutpost().send(sender);
-            return;
-        }
-
-        boolean outpost = town.hasOutpost(chunkPosition);
-        town.unclaimChunk(chunkPosition, sender);
-        if (outpost) {
-            final Config config = Config.get();
-            final double outpostRefund = config.getOutpostRefund();
-            messages.getTown().getUnclaim().getOutpostUnclaimSuccess().send(sender,
-                Formatter.number("refund", outpostRefund));
-            OutpostsMenu.open(sender, town);
-        } else {
-            messages.getTown().getUnclaim().getUnclaimSuccess().send(sender);
-        }
+        this.plugin.getOxyTownsApi().tryUnclaim(sender, town, ChunkPosition.chunkPosition(sender.getLocation()), true);
     }
 
     @CommandMethod("town|t unclaim")
@@ -92,7 +63,10 @@ public final class UnclaimCommand {
             messages.getTown().getUnclaim().getConfirmHomeBlockUnclaim().send(sender);
         } else {
             // It's a regular claim. Unclaim and tell them they unclaimed it.
-            town.unclaimChunk(chunkPosition, sender);
+            if (!town.unclaimChunk(chunkPosition, sender, TownUnclaimEvent.UnclaimCause.PLAYER)) {
+                messages.getTown().getUnclaim().getUnclaimCancelled().send(sender);
+                return;
+            }
             messages.getTown().getUnclaim().getUnclaimSuccess().send(sender);
         }
     }

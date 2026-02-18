@@ -30,6 +30,8 @@ town:
   invalid-name: "<red>Please put a valid MC username."
   creation-no-permission: "<red>You do not have permission to create a town."
   creation-name-already-exists: "<yellow><name> <red>already exists. Please pick another name."
+  creation-cancelled: "<red>Town creation cancelled."
+  creation-claim-cancelled: "<red>Town initial claim cancelled. <gray>(Town is created without a claim)"
   creation-town-created:
     message: "<gold>Town <yellow><name> <gold>has been created by <yellow><player><gold>."
     sound:
@@ -65,6 +67,7 @@ town:
   no-permission-kick: "<red>You are not allowed to kick someone."
   rename-broadcast: "<gold>Town has been renamed to <yellow><new-name><gold>."
   rename-no-permission: "<red>You are not allowed to rename your town."
+  rename-cancelled: "<red>Town rename cancelled."
   settings-no-permission: "<red>You are not allowed to manage town settings."
   chunk-not-claimed: "<red>You've not claimed this chunk."
   spawn-set: "<gold>Successfully set town spawn."
@@ -151,6 +154,8 @@ town:
       <c:#ff9f30><b>|</b><st>                                                            </st>
     here-delimiter: "<gray>, <yellow>"
   claim:
+    claim-cancelled: "<red>Chunk claim cancelled."
+    partial-claim-success: "<gold>You only successfully claimed <yellow><claims><gray>/<yellow><total> chunk(s) <gold>for <yellow>$<price><gold>."
     claim-success: "<gold>You successfully claimed <yellow><claims> chunk(s) <gold>for <yellow>$<price><gold>."
     chunk-already-claimed: "<red>This chunk is already claimed."
     town-near: "<red>There's already another town within 5 chunks. Move a bit further away."
@@ -164,6 +169,7 @@ town:
     error-negative-input: "<red>Please specify a positive number for the radius to claim."
   unclaim:
     not-claimed: "<red>This area isn't claimed."
+    unclaim-cancelled: "<red>Chunk unclaim cancelled."
     unclaim-success: "<red>Chunk unclaimed."
     confirm-home-block-unclaim: |
       <gray>
