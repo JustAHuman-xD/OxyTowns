@@ -269,6 +269,9 @@ admin:
     <c:#ff9f30><b>|</b>  <c:#f7d3a3>Global Town bank: <white>$<money>
     <c:#ff9f30><b>|</b>  <c:#f7d3a3>Amount of plots: <white><plots> Plots
     <c:#ff9f30><b>|</b><st>                                                            </st>
+  townchatspy:
+    enabled: "<gold>You have enabled town chat spying."
+    disabled: "<gold>You have disabled town chat spying."
 tax:
   collection-message: |
     <gray>

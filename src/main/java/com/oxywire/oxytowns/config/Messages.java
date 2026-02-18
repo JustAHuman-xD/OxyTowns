@@ -684,6 +684,9 @@ public final class Messages {
         private Town town = new Town();
 
         @Setting
+        private TownChatSpy townChatSpy = new TownChatSpy();
+
+        @Setting
         private Message stats = new Message().setMessage("""
             - Amount of towns: <towns>
             - Users in a town: <members>
@@ -773,6 +776,15 @@ public final class Messages {
                         + "balance is <yellow><balance> <gray>.");
 
             }
+        }
+
+        @Getter
+        @ConfigSerializable
+        public static final class TownChatSpy {
+            @Setting
+            private Message enabled = new Message().setMessage("<gold>You have enabled town chat spying.");
+            @Setting
+            private Message disabled = new Message().setMessage("<gold>You have disabled town chat spying.");
         }
     }
 

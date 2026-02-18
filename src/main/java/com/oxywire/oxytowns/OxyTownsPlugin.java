@@ -29,8 +29,13 @@ import com.oxywire.oxytowns.runnable.MobsRunnable;
 import com.oxywire.oxytowns.runnable.TaxSchedule;
 import lombok.Getter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -40,6 +45,8 @@ import java.util.Optional;
 
 @Getter
 public class OxyTownsPlugin extends JavaPlugin {
+
+    private final NamespacedKey townChatSpyEnabled = new NamespacedKey(this, "townchatspy_enabled");
 
     private static OxyTownsPlugin instance;
     public static ConfigManager configManager;
@@ -128,6 +135,22 @@ public class OxyTownsPlugin extends JavaPlugin {
 
         if (Config.get().getTownChat().isEnabled()) {
             commandManager.command(
+                commandManager.commandBuilder("townchatspy", "tcs")
+                    .senderType(Player.class)
+                    .permission("oxytowns.townchatspy")
+                    .handler(context -> {
+                        Player sender = (Player) context.getSender();
+                        PersistentDataContainer pdc = sender.getPersistentDataContainer();
+                        if (pdc.has(townChatSpyEnabled)) {
+                            pdc.remove(townChatSpyEnabled);
+                            Messages.get().getAdmin().getTownChatSpy().getDisabled().send(sender);
+                        } else {
+                            pdc.set(townChatSpyEnabled, PersistentDataType.BOOLEAN, true);
+                            Messages.get().getAdmin().getTownChatSpy().getEnabled().send(sender);
+                        }
+                    })
+            );
+            commandManager.command(
                 commandManager.commandBuilder("townchat", "tc")
                     .senderType(Player.class)
                     .meta(CommandMeta.Key.of(Boolean.class, "oxytowns:must_be_in_town"), true)
@@ -139,7 +162,14 @@ public class OxyTownsPlugin extends JavaPlugin {
                             Messages.get().getTown().getNoTown().send(sender);
                             return;
                         }
-                        Config.get().getTownChat().getFormat().send(town, Placeholder.unparsed("sender", sender.getName()), Placeholder.unparsed("message", context.get("message")));
+
+                        TagResolver[] placeholders = new TagResolver[] { Placeholder.unparsed("sender", sender.getName()), Placeholder.unparsed("message", context.get("message")), Placeholder.unparsed("town", town.getName()) };
+                        Config.get().getTownChat().getFormat().send(town, placeholders);
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            if (!town.isMemberOrOwner(player.getUniqueId()) && player.getPersistentDataContainer().has(townChatSpyEnabled)) {
+                                Config.get().getTownChat().getSpyFormat().send(player, placeholders);
+                            }
+                        }
                     })
             );
         }
