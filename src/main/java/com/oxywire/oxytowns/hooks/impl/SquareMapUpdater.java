@@ -1,4 +1,4 @@
-package com.oxywire.oxytowns.addons;
+package com.oxywire.oxytowns.hooks.impl;
 
 import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.config.Config;
@@ -27,14 +27,14 @@ import java.util.Optional;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public final class SquareMapAddon extends BukkitRunnable {
+public final class SquareMapUpdater extends BukkitRunnable {
 
     private static final Key OXYTOWNS_KEY = Key.key("OxyTowns");
     private static final Key TOWN_SPAWN_KEY = Key.key("town-spawn");
 
     private Map<String, SimpleLayerProvider> providers = new HashMap<>();
 
-    public SquareMapAddon() {
+    public SquareMapUpdater() {
         try {
             final Squaremap squaremap = SquaremapProvider.get();
 
@@ -57,8 +57,6 @@ public final class SquareMapAddon extends BukkitRunnable {
                         }
                     )
                 );
-
-            this.runTaskTimerAsynchronously(OxyTownsPlugin.get(), 0L, 20L * 30);
         } catch (final Exception e) {
             OxyTownsPlugin.get().getSLF4JLogger().error("Failed to load SquareMapAddon: {}", e.getMessage());
             e.printStackTrace();

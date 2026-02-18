@@ -5,6 +5,7 @@ import com.oxywire.oxytowns.config.messaging.Message;
 import com.oxywire.oxytowns.config.messaging.Message.Sound;
 import com.oxywire.oxytowns.config.messaging.Message.Title;
 import lombok.Getter;
+import net.kyori.adventure.bossbar.BossBar;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
@@ -27,6 +28,26 @@ public final class Messages {
     private Message nowEnteringTown = new Message().setActionBar("<gold><bold>Now entering: <yellow><town>");
 
     @Setting
+    private Message nowEnteringPvpProtection = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<gold><bold>Entered PVP Protection <gray>- <white>You are now in a safe zone.")
+        .setColor(BossBar.Color.GREEN));
+
+    @Setting
+    private Message nowEnteringPvpProtectionPvpOff = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<gold><bold>Entered PVP Protection <gray>- <white>You still have PVP disabled.")
+        .setColor(BossBar.Color.GREEN));
+
+    @Setting
+    private Message nowLeavingPvpProtection = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<red><bold>Left PVP Protection <gray>- <white>You will be vulnerable in <grace_period> seconds.")
+        .setColor(BossBar.Color.RED));
+
+    @Setting
+    private Message nowLeavingPvpProtectionPvpOff = new Message().setBossBar(new Message.BossBar()
+        .setTitle("<red><bold>Leaving PVP Protection <gray>- <white>You still have PVP disabled.")
+        .setColor(BossBar.Color.RED));
+
+    @Setting
     private Message bypassOn = new Message()
         .setMessage("<gold><b>Info</b> <dark_gray>» <gray>You have toggled <yellow>Bypass <green>on<gray>.");
 
@@ -45,6 +66,9 @@ public final class Messages {
 
     @Setting
     private Tax tax = new Tax();
+
+    @Setting
+    private Notifications notifications = new Notifications();
 
     @Setting
     private CommandFeedback commandFeedback = new CommandFeedback();
@@ -80,6 +104,14 @@ public final class Messages {
         @Setting
         private Message creationNameAlreadyExists = new Message().setMessage(
             "<red><b>Error</b> <dark_gray>» <yellow><name> <red>already exists. Please pick another name.");
+
+        @Setting
+        private Message creationCancelled = new Message().setMessage(
+            "<red><b>Error</b> <dark_gray>» <red>Town creation was cancelled.");
+
+        @Setting
+        private Message creationClaimCancelled = new Message().setMessage(
+            "<red><b>Error</b> <dark_gray>» <red>Could not claim the initial town chunk. <gray>(The town is still being created.)");
 
         @Setting
         private Message creationTownCreated = new Message()
@@ -164,6 +196,10 @@ public final class Messages {
 
         @Setting
         private Message renameNoPermission = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>You are not allowed to rename your town.");
+
+        @Setting
+        private Message renameCancelled = new Message().setMessage(
+            "<red><b>Error</b> <dark_gray>» <red>Town rename was cancelled.");
 
         @Setting
         private Message settingsNoPermission = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>You are not allowed to manage town settings.");
@@ -270,6 +306,43 @@ public final class Messages {
         @Setting
         private Unban unban = new Unban();
 
+        @Setting
+        private Chat chat = new Chat();
+
+        @Getter
+        @ConfigSerializable
+        public static final class Chat {
+            @Setting
+            private Message toggleOn = new Message().setMessage(
+                "<gold>You have toggled on town chat.");
+
+            @Setting
+            private Message toggleOff = new Message().setMessage(
+                "<gold>You have toggled off town chat.");
+
+            @Setting
+            private Message ignoreToggleOn = new Message().setMessage(
+                "<gold>You are now ignoring town chat messages.");
+            @Setting
+            private Message ignoreToggleOff = new Message().setMessage(
+                "<gold>You are no longer ignoring town chat messages.");
+
+            @Setting
+            private Message spyToggleOn = new Message().setMessage(
+                "<gold>You have enabled town chat spy.");
+            @Setting
+            private Message spyToggleOff = new Message().setMessage(
+                "<gold>You have disabled town chat spy.");
+
+            @Setting
+            private Message format = new Message().setMessage(
+                "<green>[Town] <white><sender>: <gray><message>");
+
+            @Setting
+            private Message spyFormat = new Message().setMessage(
+                "<red>[TownSpy] <white><town>@<sender>: <gray><message>");
+        }
+
         @Getter
         @ConfigSerializable
         public static final class Unban {
@@ -358,6 +431,19 @@ public final class Messages {
         public static final class Outpost {
 
             @Setting
+            private Message claimConfirm = new Message().setMessage("""
+                <gray>
+                <gray>              <gold><st>               </st><gold><bold> Outpost Claim <gold><st>               <reset>
+                <gray>
+                <yellow>               <gray>Are you sure you want to claim this outpost for <yellow>$<price><gray>?
+                <gray>
+                <gray><italic>                          Please make a choice.
+                <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/t outpost claim confirm><green><bold>[Confirm]</click>
+                <gray>                 <gold><st>                                             <reset>
+                """
+            );
+
+            @Setting
             private Message claimSuccessful = new Message().setMessage(
                 "<gold><b>Info</b> <dark_gray>» <yellow><town> <gray>successfully claimed this outpost.");
 
@@ -377,6 +463,9 @@ public final class Messages {
 
             @Setting
             private Message errorNotWithinTown = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>You must be within your town to access the town bank.");
+
+            @Setting
+            private Message errorMustClaimFirst = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>Your town must claim land before withdrawing from the town bank or making excess deposits.");
 
             @Setting
             private Message errorCannotAfford = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>Your town can't afford this.");
@@ -403,6 +492,14 @@ public final class Messages {
         @Getter
         @ConfigSerializable
         public static final class Claim {
+
+            @Setting
+            private Message claimCancelled =  new Message().setMessage(
+                "<red><b>Error</b> <dark_gray>» <red>Claiming was cancelled.");
+
+            @Setting
+            private Message partialClaimSuccess = new Message().setMessage(
+                "<gold><b>Info</b> <dark_gray>» <gray>You were only able to claim <yellow><claims><gray>/<yellow><total> chunk(s) <gray>for <yellow>$<price><gray>.");
 
             @Setting
             private Message claimSuccess = new Message().setMessage(
@@ -454,6 +551,10 @@ public final class Messages {
             private Message notClaimed = new Message().setMessage("<red><b>Error</b> <dark_gray>» <red>This area isn't claimed.");
 
             @Setting
+            private Message unclaimCancelled = new Message().setMessage(
+                "<red><b>Error</b> <dark_gray>» <red>Unclaim was cancelled.");
+
+            @Setting
             private Message unclaimSuccess = new Message().setMessage("<red><b>Warning</b> <dark_gray>» <gray>Chunk unclaimed.");
 
             @Setting
@@ -473,16 +574,21 @@ public final class Messages {
                 "<red><b>Error</b> <dark_gray>» <red>You can not unclaim this chunk because it is linked to an outpost.");
 
             @Setting
-            private Message unclaimConfirm = new Message().setMessage("""
+            private Message confirmOutpostUnclaim = new Message().setMessage("""
                 <gray>
                 <gray>              <gold><st>               </st><gold><bold> Town Unclaim <gold><st>               <reset>
                 <gray>
                 <red>    You are about to unclaim a town outpost. Are you sure?
+                <red>         Your town will be refunded <yellow>$<refund>
                 <gray>
                 <gray><italic>                          Please make a choice.
                 <gray>                        <click:run_command:/t cancel><red><bold>[Cancel]</click>     <click:run_command:/t unclaim confirm><green><bold>[Confirm]</click>
                 <gray>                 <gold><st>
                 """);
+
+            @Setting
+            private Message outpostUnclaimSuccess = new Message().setMessage(
+                "<red><b>Warning</b> <dark_gray>» <gray>Outpost unclaimed. Your town has been refunded <yellow>$<refund><gray>.");
 
         }
 
@@ -587,8 +693,16 @@ public final class Messages {
             """);
 
         @Setting
+        private Message townOutpostsUnclaimed = new Message().setMessage(
+            "<dark_gray> » <gray>The town of <yellow><town> <gray>couldn't afford to pay taxes and had some outposts repossessed to make up for it.");
+
+        @Setting
+        private Message townUnclaimed = new Message().setMessage(
+            "<dark_gray> » <gray>The town of <yellow><town> <gray>couldn't afford to pay taxes and was unclaimed. (If they miss it again it will be disbanded)");
+
+        @Setting
         private Message townDisbanded = new Message().setMessage(
-            "<dark_gray> » <gray>The town of <yellow><town> <gray>couldn''t afford to pay taxes.");
+            "<dark_gray> » <gray>The town of <yellow><town> <gray>couldn't afford to pay taxes and was disbanded.");
 
         @Setting
         private Message collectionWarning = new Message().setMessage("""
@@ -681,10 +795,19 @@ public final class Messages {
     public static final class Admin {
 
         @Setting
-        private Town town = new Town();
+        private Message upkeepConfirm = new Message().setMessage("""
+            <gray>
+            <gray>              <gold><st>               </st><gold><bold> Trigger Town Upkeep <gold><st>               <reset>
+            <gray>
+            <yellow>         You are about to trigger town upkeep for <yellow><town><gray>.
+            <gray>
+            <gray><italic>                          Please make a choice.
+            <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/ta upkeep confirm><green><bold>[Confirm]</click>
+            <gray>                 <gold><st>                                             <reset>
+            """);
 
         @Setting
-        private TownChatSpy townChatSpy = new TownChatSpy();
+        private Town town = new Town();
 
         @Setting
         private Message stats = new Message().setMessage("""
@@ -777,15 +900,40 @@ public final class Messages {
 
             }
         }
+    }
 
-        @Getter
-        @ConfigSerializable
-        public static final class TownChatSpy {
-            @Setting
-            private Message enabled = new Message().setMessage("<gold>You have enabled town chat spying.");
-            @Setting
-            private Message disabled = new Message().setMessage("<gold>You have disabled town chat spying.");
-        }
+    @Getter
+    @ConfigSerializable
+    public static final class Notifications {
+
+        @Setting
+        private Message townRenamed = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><old-name> <red>was renamed to <yellow><new-name><red>.");
+
+        @Setting
+        private Message townOutpostsUnclaimed = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><town> <red>couldn't afford to pay taxes and had some outposts repossessed to make up for it.");
+
+        @Setting
+        private Message townUnclaimed = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><town> <red>couldn't afford to pay taxes and was unclaimed. (If they miss it again it will be disbanded)");
+
+        @Setting
+        private Message townDisbanded = new Message().setMessage(
+            "<red>While you were offline, your town <yellow><town> <red>couldn't afford to pay taxes and was disbanded.");
+
+        @Setting
+        private Message townKicked = new Message().setMessage(
+            "<red>While you were offline, you were kicked from the town <yellow><town><red>.");
+
+        @Setting
+        private Message townBanned = new Message().setMessage(
+            "<red>While you were offline, you were banned from the town <yellow><town><red>.");
+
+        @Setting
+        private Message townRoleChanged = new Message().setMessage(
+            "<red>While you were offline, your role in the town <yellow><town> <red>was changed to <yellow><role><red>.");
+
     }
 
     @Getter

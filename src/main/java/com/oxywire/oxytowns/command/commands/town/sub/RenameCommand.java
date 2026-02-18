@@ -38,7 +38,13 @@ public final class RenameCommand {
             return;
         }
 
-        town.setName(name);
+        String oldName = town.getName();
+        if (!town.setName(name)) {
+            messages.getTown().getRenameCancelled().send(sender);
+            return;
+        }
+        town.notifyOfflineMembers("town-renamed", messages.getNotifications().getTownRenamed(),
+            Placeholder.unparsed("old-name", oldName), Placeholder.unparsed("new-name", name));
         messages.getTown().getRenameBroadcast().send(town, Placeholder.unparsed("new-name", name));
     }
 }

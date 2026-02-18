@@ -9,18 +9,22 @@ import com.google.common.collect.Sets;
 import com.oxywire.oxytowns.OxyTownsPlugin;
 import com.oxywire.oxytowns.config.Config;
 import com.oxywire.oxytowns.config.Messages;
+import com.oxywire.oxytowns.config.messaging.Message;
 import com.oxywire.oxytowns.entities.impl.BanEntry;
 import com.oxywire.oxytowns.entities.impl.TrustedEntry;
 import com.oxywire.oxytowns.entities.impl.plot.Plot;
 import com.oxywire.oxytowns.entities.model.Named;
 import com.oxywire.oxytowns.entities.model.Organisation;
-import com.oxywire.oxytowns.entities.types.PlotType;
 import com.oxywire.oxytowns.entities.types.Role;
 import com.oxywire.oxytowns.entities.types.Upgrade;
 import com.oxywire.oxytowns.entities.types.perms.Permission;
 import com.oxywire.oxytowns.entities.types.settings.EntityInteractionSetting;
 import com.oxywire.oxytowns.entities.types.settings.Setting;
 import com.oxywire.oxytowns.entities.types.settings.SpawnSetting;
+import com.oxywire.oxytowns.events.TownClaimEvent;
+import com.oxywire.oxytowns.events.TownMayorChangeEvent;
+import com.oxywire.oxytowns.events.TownRenameEvent;
+import com.oxywire.oxytowns.events.TownUnclaimEvent;
 import com.oxywire.oxytowns.menu.town.VaultMenu;
 import com.oxywire.oxytowns.runnable.TaxSchedule;
 import com.oxywire.oxytowns.entities.model.CreatedDateHolder;
@@ -31,6 +35,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -61,7 +66,6 @@ import java.util.stream.Collectors;
 public final class Town implements CreatedDateHolder, Organisation<UUID>, ForwardingAudience, Placeholdered, Named {
 
     private final UUID townId;
-    @Setter
     private String name;
     private UUID owner;
     @Setter
@@ -74,6 +78,8 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
     private FinePosition spawnPosition;
     @Setter
     private double bankValue;
+    @Setter
+    private boolean missedLastUpkeep;
     private final Map<Upgrade, Integer> townUpgrades;
     private final List<VaultMenu> vaults;
     private final Set<BanEntry> bans;
@@ -119,13 +125,28 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
     }
 
     /**
-     * Adds a chunk to the town's claimed chunks.
-     *
-     * @param chunkRegion Chunk regions to claim.
+     * @deprecated Use {@link Town#claimChunks(ChunkPosition, Player, TownClaimEvent.ClaimCause)} instead.
      */
+    @Deprecated(since = "1.5.0")
     public void claimChunks(final ChunkPosition chunkRegion) {
-        this.claimedChunks.add(chunkRegion);
-        OxyTownsPlugin.get().getTownCache().getTownsMap().put(chunkRegion, this);
+        claimChunks(chunkRegion, null, TownClaimEvent.ClaimCause.OTHER);
+    }
+
+    /**
+     * Attempts to claim chunks for the town.
+     * @param chunkRegion Chunk regions to claim.
+     * @param player      the player claiming the chunks (if any)
+     * @param cause       the cause of the claim
+     * @return whether the claim was successful (if the event was not cancelled)
+     */
+    public boolean claimChunks(final ChunkPosition chunkRegion, @Nullable final Player player, final TownClaimEvent.ClaimCause cause) {
+        final TownClaimEvent claimEvent = new TownClaimEvent(this, chunkRegion, player, cause);
+        if (claimEvent.callEvent()) {
+            this.claimedChunks.add(chunkRegion);
+            OxyTownsPlugin.get().getTownCache().getTownsMap().put(chunkRegion, this);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -141,20 +162,37 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
     }
 
     /**
+     * @deprecated Use {@link Town#unclaimChunk(ChunkPosition, Player, TownUnclaimEvent.UnclaimCause)} instead.
+     */
+    @Deprecated(since = "1.5.0")
+    public void unclaimChunk(final ChunkPosition chunkRegion, final Player player) {
+        unclaimChunk(chunkRegion, player, TownUnclaimEvent.UnclaimCause.OTHER);
+    }
+
+    /**
      * Unclaims a chunk at a given position.
      *
      * @param chunkRegion the chunk to remove
      * @param player      the player unclaiming the chunk
+     * @param cause       the cause of the unclaim
+     * @return whether the unclaim was successful (if the event was not cancelled)
      */
-    public void unclaimChunk(final ChunkPosition chunkRegion, final Player player) {
-        this.outpostChunks.removeIf(it -> ChunkPosition.chunkPosition(it).equals(chunkRegion));
-        this.claimedChunks.remove(chunkRegion);
-        this.playerPlots.remove(chunkRegion);
-        OxyTownsPlugin.get().getTownCache().getTownsMap().remove(chunkRegion);
+    public boolean unclaimChunk(final ChunkPosition chunkRegion, @Nullable final Player player, TownUnclaimEvent.UnclaimCause cause) {
+        final TownUnclaimEvent unclaimEvent = new TownUnclaimEvent(this, chunkRegion, player, cause);
+        if (unclaimEvent.callEvent()) {
+            if (this.outpostChunks.removeIf(it -> ChunkPosition.chunkPosition(it).equals(chunkRegion))) {
+                this.bankValue += Config.get().getOutpostRefund();
+            }
+            this.claimedChunks.remove(chunkRegion);
+            this.playerPlots.remove(chunkRegion);
+            OxyTownsPlugin.get().getTownCache().getTownsMap().remove(chunkRegion);
 
-        if (this.spawnPosition != null && chunkRegion.contains(this.spawnPosition)) {
-            this.spawnPosition = null;
+            if (this.spawnPosition != null && chunkRegion.contains(this.spawnPosition)) {
+                this.spawnPosition = null;
+            }
+            return true;
         }
+        return false;
     }
 
     /**
@@ -165,6 +203,15 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
     public void claimOutpost(final Location location) {
         this.outpostChunks.add(FinePosition.finePosition(location));
         OxyTownsPlugin.get().getTownCache().getTownsMap().put(ChunkPosition.chunkPosition(location), this);
+    }
+
+    public boolean setName(String name) {
+        TownRenameEvent event = new TownRenameEvent(this, this.name, name);
+        if (event.callEvent()) {
+            this.name = event.getNewName();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -198,10 +245,10 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
      * @return claimed or not
      */
     public boolean hasClaimed(final ChunkPosition chunkPosition) {
-        if (claimedChunks.contains(chunkPosition)) {
-            return true;
-        }
+        return claimedChunks.contains(chunkPosition) || hasOutpost(chunkPosition);
+    }
 
+    public boolean hasOutpost(final ChunkPosition chunkPosition) {
         for (FinePosition location : this.outpostChunks) {
 //            if (!location.isWorldLoaded()) {
 //                continue; // ??? - We lose the entire world context if it unloads (i.e. on shutdown)
@@ -450,6 +497,19 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
         return false;
     }
 
+    public void notifyOfflineMembers(String type, Message notification, TagResolver... placeholders) {
+        Component component = notification.message(placeholders);
+        if (component == null) {
+            return;
+        }
+
+        for (UUID playerId : getOwnerAndMembers()) {
+            if (Bukkit.getPlayer(playerId) == null) {
+                OxyTownsPlugin.notificationStorageManager.queueNotification(playerId, type, component);
+            }
+        }
+    }
+
     /**
      * Teleports an entity to the town spawn.
      *
@@ -578,6 +638,7 @@ public final class Town implements CreatedDateHolder, Organisation<UUID>, Forwar
      * @param uuid the new mayor of the town
      */
     public void transferMayor(final UUID uuid) {
+        new TownMayorChangeEvent(this, this.owner, uuid).callEvent();
         this.members.remove(uuid);
         this.members.put(this.owner, Role.CO_MAYOR);
         this.owner = uuid;

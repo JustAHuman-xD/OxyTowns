@@ -28,8 +28,10 @@ public final class DepositCommand {
     @MustBeInTown
     public void onDeposit(final Player sender, final @SendersTown Town town, final @Argument("amount") @Range(min = "0.01") double amount) {
         final Messages messages = Messages.get();
-        if (!Config.get().getTownBank().isAccessOutsideTown() && !town.hasClaimed(sender.getLocation())) {
+        if (!Config.get().getTownBank().isAccessOutsideTown() && !town.hasClaimed(sender.getLocation()) && !town.getOutpostAndClaimedChunks().isEmpty()) {
             messages.getTown().getBank().getErrorNotWithinTown().send(sender);
+        } else if (town.getOutpostAndClaimedChunks().isEmpty() && town.getBankValue() >= Config.get().getClaimPrice()) {
+            messages.getTown().getBank().getErrorMustClaimFirst().send(sender);
         } else if (!this.plugin.getEconomy().has(sender, amount)) {
             messages.getPlayer().getErrorCannotAffordDeposit().send(sender, Formatter.number("amount", amount));
         } else if (town.getWorth() + amount > town.getUpgradeValue(Upgrade.BANK_CAPACITY)) {

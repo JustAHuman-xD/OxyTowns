@@ -4,6 +4,22 @@ now-entering-wilderness:
   action-bar: "<gold><bold>Now entering: <red>Wilderness"
 now-entering-town:
   action-bar: "<gold><bold>Now entering: <yellow><town>"
+now-entering-pvp-protection:
+  boss-bar:
+    title: "<gold><bold>Entered PVP Protection <gray>- <white>You are now in a safe zone."
+    color: GREEN
+now-entering-pvp-protection-pvp-off:
+  boss-bar:
+    title: "<gold><bold>Entered PVP Protection <gray>- <white>You still have PVP disabled."
+    color: GREEN
+now-leaving-pvp-protection:
+  boss-bar:
+    title: "<red><bold>Left PVP Protection <gray>- <white>You will be vulnerable in <grace_period> seconds."
+    color: RED
+now-leaving-pvp-protection-pvp-off:
+  boss-bar:
+    title: "<red><bold>Left PVP Protection <gray>- <white>You still have PVP disabled."
+    color: RED
 bypass-on: "<gold>You have toggled town bypass <green>on<gold>."
 bypass-off: "<gold>You have toggled town bypass <red>off<gold>."
 town:
@@ -14,6 +30,8 @@ town:
   invalid-name: "<red>Please put a valid MC username."
   creation-no-permission: "<red>You do not have permission to create a town."
   creation-name-already-exists: "<yellow><name> <red>already exists. Please pick another name."
+  creation-cancelled: "<red>Town creation cancelled."
+  creation-claim-cancelled: "<red>Town initial claim cancelled. <gray>(Town is created without a claim)"
   creation-town-created:
     message: "<gold>Town <yellow><name> <gold>has been created by <yellow><player><gold>."
     sound:
@@ -49,6 +67,7 @@ town:
   no-permission-kick: "<red>You are not allowed to kick someone."
   rename-broadcast: "<gold>Town has been renamed to <yellow><new-name><gold>."
   rename-no-permission: "<red>You are not allowed to rename your town."
+  rename-cancelled: "<red>Town rename cancelled."
   settings-no-permission: "<red>You are not allowed to manage town settings."
   chunk-not-claimed: "<red>You've not claimed this chunk."
   spawn-set: "<gold>Successfully set town spawn."
@@ -135,6 +154,8 @@ town:
       <c:#ff9f30><b>|</b><st>                                                            </st>
     here-delimiter: "<gray>, <yellow>"
   claim:
+    claim-cancelled: "<red>Chunk claim cancelled."
+    partial-claim-success: "<gold>You only successfully claimed <yellow><claims><gray>/<yellow><total> chunk(s) <gold>for <yellow>$<price><gold>."
     claim-success: "<gold>You successfully claimed <yellow><claims> chunk(s) <gold>for <yellow>$<price><gold>."
     chunk-already-claimed: "<red>This chunk is already claimed."
     town-near: "<red>There's already another town within 5 chunks. Move a bit further away."
@@ -148,6 +169,7 @@ town:
     error-negative-input: "<red>Please specify a positive number for the radius to claim."
   unclaim:
     not-claimed: "<red>This area isn't claimed."
+    unclaim-cancelled: "<red>Chunk unclaim cancelled."
     unclaim-success: "<red>Chunk unclaimed."
     confirm-home-block-unclaim: |
       <gray>
@@ -159,17 +181,20 @@ town:
       <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town unclaim confirm><green><bold>[Confirm]</click>
       <gray>                 <gold><st>                                             <reset>
     chunk-linked-outpost: "<red>You can not unclaim this chunk because it is linked to an outpost."
-    unclaim-confirm: |
+    confirm-outpost-unclaim: |
       <gray>
       <gray>              <gold><st>               </st><gold><bold> Town Unclaim <gold><st>               <reset>
       <gray>
       <red>    You are about to unclaim a town outpost. Are you sure?
+      <red>         Your town will be refunded <yellow>$<refund>
       <gray>
       <gray><italic>                          Please make a choice.
       <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/town unclaim confirm><green><bold>[Confirm]</click>
       <gray>                 <gold><st>
+    outpost-unclaim-success: "<red><b>Warning</b> <dark_gray>» <gray>Outpost unclaimed. Your town has been refunded <yellow>$<refund><gray>.");
   bank:
     error-not-within-town: "<red>You must be within your town to access the town bank."
+    error-must-claim-first: "<red>Your town must claim land before withdrawing from the town bank or making excess deposits."
     error-cannot-afford: "<red>Your town can't afford this."
     error-withdraw-not-allowed: "<red>You are not allowed to withdraw money from your town bank."
     error-deposit-past-max: "<red>That deposit would exceed the town bank's capacity by $<excess>."
@@ -199,6 +224,15 @@ town:
     not-banned: "<red>That player is not banned."
     no-permission: "<red>You don't have permission to unban users from your town."
     broadcast-unban: "<yellow><player> <gold>is now unbanned from your town."
+  chat:
+    toggle-on: "<gold>You have toggled on town chat."
+    toggle-off: "<gold>You have toggled off town chat."
+    ignore-toggle-on: "<gold>You are now ignoring town chat messages."
+    ignore-toggle-off: "<gold>You are no longer ignoring town chat messages."
+    spy-toggle-on: "<gold>You have enabled town chat spying."
+    spy-toggle-off: "<gold>You have disabled town chat spying."
+    format: "<green>[Town] <white><sender>: <gray><message>"
+    spy-format: "<red>[TownSpy] <white><town>@<sender>: <gray><message>"
 player:
   error-cannot-afford-deposit: "<red>You don't have enough money to deposit <yellow>$<amount><red>."
   town-invited-expired: "<red>Your invite from <yellow><town> <red>has expired."
@@ -223,13 +257,22 @@ player:
   banned-warning-title:
     title:
       title: "<dark_red>(<red>!<dark_red>) <red>Banned <dark_red>(<red>!<dark_red>)"
-      sub-title: "<red>You're banned from that town."
+      sub-title: "<red>You or a passenger banned from that town."
   unban-message: "<gold>You've been unbanned from <yellow><town><gold>."
   cant-do-that-command-in-this-plot-type: "<red>You can't do that command in this <type> plots."
   you-were-trusted: "<gold>You were trusted in <yellow><town><gold>."
   you-were-untrusted: "<gold>You were untrusted in <yellow><town><gold>."
   you-are-now-the-mayor: "<gold>You are now the mayor of <yellow><town><gold>."
 admin:
+  upkeep-confirm: |
+    <gray>
+    <gray>              <gold><st>               </st><gold><bold> Trigger Town Upkeep <gold><st>               <reset>
+    <gray>
+    <yellow>         You are about to trigger town upkeep for <yellow><town><gray>.
+    <gray>
+    <gray><italic>                          Please make a choice.
+    <gray>                        <click:run_command:/town cancel><red><bold>[Cancel]</click>     <click:run_command:/ta upkeep confirm><green><bold>[Confirm]</click>
+    <gray>                 <gold><st>                                             <reset>
   town:
     player-in-town: "<red>That player is already in a town."
     player-not-in-town: "<red>That player is not in a town."
@@ -277,11 +320,21 @@ tax:
     <gray>
     <dark_red>(<red>!<dark_red>) <red>A new day is here! Taxes and rent have been collected <dark_red>(<red>!<dark_red>)
     <gray>
-  town-disbanded: "<red>The town of <yellow><town> <red>couldn''t afford to pay taxes."
+  town-outposts-unclaimed: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and had some outposts repossessed to make up for it."
+  town-unclaimed: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and was unclaimed. (If they miss it again it will be disbanded)"
+  town-disbanded: "<red>The town of <yellow><town> <red>couldn't afford to pay taxes and was disbanded."
   collection-warning: |
     <gray>
     <dark_red>(<red>!<dark_red>) <red>Town taxes will be collected in <yellow><time> <red>minutes <dark_red>(<red>!<dark_red>)
     <gray>
+notifications:
+  town-renamed: "<red>While you were offline, your town <yellow><old-name> <red>was renamed to <yellow><new-name><red>."
+  town-outposts-unclaimed: "<red>While you were offline, your town <yellow><town> <red>had some outposts unclaimed due to lack of upkeep."
+  town-unclaimed: "<red>While you were offline, your town <yellow><town> <red>was unclaimed due to lack of upkeep."
+  town-disbanded: "<red>While you were offline, your town <yellow><town> <red>was disbanded due to lack of upkeep."
+  town-kicked: "<red>While you were offline, you were kicked from the town <yellow><town><red>."
+  town-banned: "<red>While you were offline, you were banned from the town <yellow><town><red>."
+  town-role-changed: "<red>While you were offline, your role in the town <yellow><town> <red>was changed to <yellow><role><red>."
 command-feedback:
   argument-parse: "<red>This is an invalid command argument."
   command-execution: "<red>An internal error occurred while attempting to perform this command."

@@ -507,6 +507,11 @@ public final class Menus {
                                 .setDisplayName("<gold>Manage Trust")
                         ),
                         Map.entry(
+                            "permission-" + Permission.MANAGE_ROLES, new MenuElement()
+                                .setMaterial(Material.WRITABLE_BOOK)
+                                .setDisplayName("<gold>Manage Roles")
+                        ),
+                        Map.entry(
                             "role-" + Role.CO_MAYOR, new MenuElement()
                             .setMaterial(Material.NAME_TAG)
                             .setSlot(6)
@@ -596,11 +601,22 @@ public final class Menus {
                     Map.of(
                         "go-home", new MenuElement()
                             .setMaterial(Material.RED_STAINED_GLASS_PANE)
+                            .setDisplayName("<red>Return Home")
                             .setSlot(36)
                             .setLore(
                                 List.of(
                                     "",
                                     "<red>Click to return to the main menu."
+                                )
+                            ),
+                        "claim-outpost", new MenuElement()
+                            .setMaterial(Material.LIME_STAINED_GLASS_PANE)
+                            .setDisplayName("<green>Claim Outpost Here")
+                            .setSlot(40)
+                            .setLore(
+                                List.of(
+                                    "",
+                                    "<green>■ Left Click to claim an outpost for $<price>."
                                 )
                             ),
                         "outpost", new MenuElement()
