@@ -4,7 +4,6 @@ import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
 import com.oxywire.oxytowns.OxyTownsPlugin;
-import com.oxywire.oxytowns.cache.TownCache;
 import com.oxywire.oxytowns.command.annotation.MustBeInTown;
 import com.oxywire.oxytowns.command.annotation.SendersTown;
 import com.oxywire.oxytowns.config.Config;
